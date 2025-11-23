@@ -494,6 +494,9 @@ const createStyles = (isDark: boolean) => StyleSheet.create({
     paddingHorizontal: 32,
     paddingVertical: 14,
     borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   emptyButtonText: {
     color: '#fff',

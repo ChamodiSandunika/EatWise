@@ -9,7 +9,6 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
     ActivityIndicator,
-    Alert,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -24,8 +23,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 
 import { useTheme } from '../contexts/ThemeContext';
+import { useThemedAlert } from '../hooks/useThemedAlert';
 import type { MealType, NutritionItem } from '../store/mealsSlice';
 import { addMeal } from '../store/mealsSlice';
+import { ThemedAlert } from '../utils/themedAlert';
 
 const API_KEY = process.env.EXPO_PUBLIC_API_NINJAS_KEY;
 const API_URL = 'https://api.api-ninjas.com/v1/nutrition';
@@ -48,6 +49,7 @@ export default function AddMealScreen() {
   const router = useRouter();
   const dispatch = useDispatch();
   const { isDarkMode } = useTheme();
+  const { alertConfig, isVisible, showAlert, hideAlert } = useThemedAlert();
 
   const [selectedMealType, setSelectedMealType] = useState<MealType>('Breakfast');
   const [mealDescription, setMealDescription] = useState('');
@@ -85,13 +87,13 @@ export default function AddMealScreen() {
   // Fetch nutrition data from API
   const fetchNutrition = async () => {
     if (!mealDescription.trim()) {
-      Alert.alert('Empty Input', 'Please enter what you ate');
+      showAlert('Empty Input', 'Please enter what you ate');
       return;
     }
 
     // Check if API key is configured
     if (!API_KEY || API_KEY === 'YOUR_API_KEY') {
-      Alert.alert(
+      showAlert(
         'API Key Missing',
         'Please add your API Ninjas key to the .env file:\n\nEXPO_PUBLIC_API_NINJAS_KEY=your_key\n\nGet your free key at: https://api-ninjas.com'
       );
@@ -130,7 +132,7 @@ export default function AddMealScreen() {
         parsedResponse = JSON.parse(responseText);
       } catch (e) {
         console.error('❌ Failed to parse response:', e);
-        Alert.alert('Error', 'Invalid response from API. Please try again.');
+        showAlert('Error', 'Invalid response from API. Please try again.');
         setIsLoading(false);
         return;
       }
@@ -141,17 +143,16 @@ export default function AddMealScreen() {
         
         if (parsedResponse.error.includes('down for free users') || 
             parsedResponse.error.includes('premium subscription')) {
-          Alert.alert(
+          showAlert(
             'API Temporarily Unavailable',
             'The nutrition API is currently down for free users. You can:\n\n' +
             '1. Try again later\n' +
             '2. Manually enter nutrition values\n' +
             '3. Use alternative nutrition databases\n\n' +
-            'We apologize for the inconvenience.',
-            [{ text: 'OK' }]
+            'We apologize for the inconvenience.'
           );
         } else {
-          Alert.alert('API Error', parsedResponse.error);
+          showAlert('API Error', parsedResponse.error);
         }
         setIsLoading(false);
         return;
@@ -171,7 +172,7 @@ export default function AddMealScreen() {
         }
         
         console.error('❌ API Error:', response.status, responseText);
-        Alert.alert('API Error', `${errorMessage}\n\nStatus: ${response.status}`);
+        showAlert('API Error', `${errorMessage}\n\nStatus: ${response.status}`);
         setIsLoading(false);
         return;
       }
@@ -180,7 +181,7 @@ export default function AddMealScreen() {
       console.log('✅ Parsed data:', data);
 
       if (!data || data.length === 0) {
-        Alert.alert(
+        showAlert(
           'No Results',
           'Could not find nutrition information for this meal. Try being more specific or use common food names.'
         );
@@ -195,10 +196,9 @@ export default function AddMealScreen() {
       
       if (hasPremiumRestriction) {
         console.warn('⚠️ API returned premium restriction - calculating calories from macros');
-        Alert.alert(
+        showAlert(
           'Note',
-          'Some nutrition data is restricted in the free API tier. Calories will be estimated from available macronutrients (Protein, Carbs, Fat).',
-          [{ text: 'OK' }]
+          'Some nutrition data is restricted in the free API tier. Calories will be estimated from available macronutrients (Protein, Carbs, Fat).'
         );
       }
 
@@ -220,7 +220,7 @@ export default function AddMealScreen() {
         errorMessage = `Error: ${error.message}`;
       }
       
-      Alert.alert(
+      showAlert(
         'Error',
         errorMessage + '\n\nCheck the console for more details.'
       );
@@ -232,7 +232,7 @@ export default function AddMealScreen() {
   // Save meal to Redux and navigate
   const saveMeal = () => {
     if (!nutritionResults || nutritionResults.length === 0) {
-      Alert.alert('No Data', 'Please analyze your meal first');
+      showAlert('No Data', 'Please analyze your meal first');
       return;
     }
 
@@ -258,7 +258,7 @@ export default function AddMealScreen() {
     console.log('💾 Saving meal:', JSON.stringify(newMeal, null, 2));
     dispatch(addMeal(newMeal));
 
-    Alert.alert('Success', `Meal logged with ${Math.round(totals.calories)} calories!`, [
+    showAlert('Success', `Meal logged with ${Math.round(totals.calories)} calories!`, [
       {
         text: 'OK',
         onPress: () => router.back(),
@@ -459,6 +459,18 @@ export default function AddMealScreen() {
           </View>
         )}
       </KeyboardAvoidingView>
+
+      {/* Themed Alert Modal */}
+      {alertConfig && (
+        <ThemedAlert
+          visible={isVisible}
+          title={alertConfig.title}
+          message={alertConfig.message}
+          buttons={alertConfig.buttons}
+          isDarkMode={isDarkMode}
+          onDismiss={hideAlert}
+        />
+      )}
     </SafeAreaView>
   );
 }
