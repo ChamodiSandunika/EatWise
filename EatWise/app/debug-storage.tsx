@@ -10,13 +10,13 @@ import React, { useEffect, useState } from 'react';
 import {
     Alert,
     Platform,
-    SafeAreaView,
     ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { clearAllMeals, migrateMeals } from '../utils/migrateMeals';
 
 export default function DebugScreen() {
@@ -105,7 +105,7 @@ export default function DebugScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Feather name="arrow-left" size={24} color="#1f2937" />

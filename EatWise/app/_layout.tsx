@@ -6,6 +6,8 @@
 import { ClerkLoaded, ClerkProvider } from '@clerk/clerk-expo';
 import { Slot } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
+import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 
 import { store } from '../store';
@@ -37,12 +39,15 @@ if (!publishableKey) {
 
 export default function RootLayout() {
   return (
-    <Provider store={store}>
-      <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
-        <ClerkLoaded>
-          <Slot />
-        </ClerkLoaded>
-      </ClerkProvider>
-    </Provider>
+    <SafeAreaProvider>
+      <Provider store={store}>
+        <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
+          <ClerkLoaded>
+            <StatusBar style="dark" />
+            <Slot />
+          </ClerkLoaded>
+        </ClerkProvider>
+      </Provider>
+    </SafeAreaProvider>
   );
 }

@@ -11,6 +11,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const PRIVACY_SETTINGS_KEY = '@eatwise_privacy_settings';
 
@@ -157,7 +158,7 @@ export default function PrivacyScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Feather name="arrow-left" size={24} color="#1f2937" />
@@ -338,7 +339,7 @@ export default function PrivacyScreen() {
           <Text style={styles.versionSubtext}>Last updated: November 2025</Text>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 

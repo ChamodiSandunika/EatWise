@@ -8,13 +8,13 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import {
     Alert,
-    SafeAreaView,
     ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAllMeals } from '../store/mealsSelectors';
 import { removeMeal, toggleFavorite } from '../store/mealsSlice';
@@ -30,7 +30,7 @@ export default function MealDetailsScreen() {
 
   if (!meal) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <Feather name="arrow-left" size={24} color="#1f2937" />
@@ -106,7 +106,7 @@ export default function MealDetailsScreen() {
   const mealDate = new Date(meal.timestamp);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity

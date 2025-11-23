@@ -9,12 +9,12 @@ import React, { useState } from 'react';
 import {
     Alert,
     FlatList,
-    SafeAreaView,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppDispatch, useAppSelector } from '../../hooks/useAppDispatch';
 import { addMeal, removeMeal, toggleFavorite, type Meal } from '../../store/mealsSlice';
 
@@ -181,7 +181,7 @@ export default function FavoritesScreen() {
 
   if (favoriteMeals.length === 0) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Favorites</Text>
         </View>
@@ -206,7 +206,7 @@ export default function FavoritesScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Favorites</Text>
         <View style={styles.sortContainer}>

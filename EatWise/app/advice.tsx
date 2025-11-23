@@ -8,13 +8,13 @@ import { useRouter } from 'expo-router';
 import React from 'react';
 import {
     RefreshControl,
-    SafeAreaView,
     ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import AdviceCard from '../components/AdviceCard';
 import {
@@ -70,7 +70,7 @@ export default function AdviceScreen() {
   const caloriePercent = Math.min((dailyCalories / dailyGoal) * 100, 100);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>

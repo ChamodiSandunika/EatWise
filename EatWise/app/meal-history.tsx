@@ -10,13 +10,12 @@ import React, { useEffect, useState } from 'react';
 import {
     FlatList,
     RefreshControl,
-    SafeAreaView,
-    StatusBar,
     StyleSheet,
     Text,
     TouchableOpacity,
     View
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 
 import MealCard from '../components/MealCard';
@@ -181,9 +180,7 @@ export default function MealHistoryScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity

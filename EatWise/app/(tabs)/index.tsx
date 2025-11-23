@@ -10,14 +10,16 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
     FlatList,
+    Modal,
+    Pressable,
     RefreshControl,
-    SafeAreaView,
-    StatusBar,
+    ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 
 import DailySummary from '../../components/DailySummary';
@@ -45,6 +47,56 @@ export default function HomeScreen() {
   const isLoading = useSelector(selectIsLoading);
 
   const [refreshing, setRefreshing] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  // Sample notifications
+  const notifications = [
+    {
+      id: '1',
+      title: 'Daily Goal Reminder',
+      message: `You're doing great! You've consumed ${Math.round(dailyCalories)} out of ${dailyGoal} calories today. Keep it up!`,
+      time: '2 hours ago',
+      icon: 'target' as const,
+      color: '#10b981',
+      read: false,
+    },
+    {
+      id: '2',
+      title: 'Meal Logged Successfully',
+      message: 'Your breakfast has been added to today\'s meal log. You\'re making great progress!',
+      time: '5 hours ago',
+      icon: 'check-circle' as const,
+      color: '#3b82f6',
+      read: true,
+    },
+    {
+      id: '3',
+      title: 'Water Intake Reminder',
+      message: 'Don\'t forget to stay hydrated! Aim for at least 8 glasses of water today.',
+      time: '1 day ago',
+      icon: 'droplet' as const,
+      color: '#06b6d4',
+      read: true,
+    },
+    {
+      id: '4',
+      title: 'Weekly Progress Report',
+      message: 'You\'ve maintained your calorie goals for 5 out of 7 days this week. Excellent work!',
+      time: '2 days ago',
+      icon: 'trending-up' as const,
+      color: '#8b5cf6',
+      read: true,
+    },
+    {
+      id: '5',
+      title: 'New Feature Available',
+      message: 'Check out the Smart Health Advice feature to get personalized nutrition insights!',
+      time: '3 days ago',
+      icon: 'star' as const,
+      color: '#f59e0b',
+      read: true,
+    },
+  ];
 
   // Load meals from storage on mount
   useEffect(() => {
@@ -158,26 +210,25 @@ export default function HomeScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
         <View>
           <Text style={styles.greeting}>Hello,</Text>
           <Text style={styles.username}>{displayName}!</Text>
         </View>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          <TouchableOpacity 
-            style={styles.notificationButton}
-            onPress={() => router.push('/debug-storage' as any)}
-          >
-            <Feather name="tool" size={20} color="#ef4444" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.notificationButton}>
-            <Feather name="bell" size={24} color="#374151" />
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity 
+          style={styles.notificationButton}
+          onPress={() => {
+            console.log('Bell clicked, showing notifications');
+            setShowNotifications(true);
+          }}
+        >
+          <Feather name="bell" size={24} color="#374151" />
+          {notifications.some(n => !n.read) && (
+            <View style={styles.notificationBadge} />
+          )}
+        </TouchableOpacity>
       </View>
 
       {/* Meals List with FlatList */}
@@ -207,6 +258,58 @@ export default function HomeScreen() {
       >
         <Feather name="plus" size={28} color="#fff" />
       </TouchableOpacity>
+
+      {/* Notifications Modal */}
+      {console.log('Modal visible state:', showNotifications)}
+      <Modal
+        visible={showNotifications}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowNotifications(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <Pressable 
+            style={styles.modalBackdrop}
+            onPress={() => setShowNotifications(false)}
+          />
+          <View style={styles.modalContent}>
+            {/* Modal Header */}
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Notifications</Text>
+              <TouchableOpacity
+                onPress={() => setShowNotifications(false)}
+                style={styles.closeButton}
+              >
+                <Feather name="x" size={24} color="#6b7280" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Notifications List */}
+            <ScrollView style={styles.notificationsList}>
+              {notifications.length > 0 ? (
+                notifications.map((notification) => (
+                  <View key={notification.id} style={styles.notificationItem}>
+                    <View style={[styles.notificationIcon, { backgroundColor: `${notification.color}20` }]}>
+                      <Feather name={notification.icon} size={24} color={notification.color} />
+                    </View>
+                    <View style={styles.notificationContent}>
+                      <Text style={styles.notificationTitle}>{notification.title}</Text>
+                      <Text style={styles.notificationMessage}>{notification.message}</Text>
+                      <Text style={styles.notificationTime}>{notification.time}</Text>
+                    </View>
+                    {!notification.read && <View style={styles.unreadDot} />}
+                  </View>
+                ))
+              ) : (
+                <View style={styles.emptyNotifications}>
+                  <Feather name="bell-off" size={48} color="#d1d5db" />
+                  <Text style={styles.emptyNotificationsText}>No notifications yet</Text>
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -356,5 +459,115 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#6b7280',
     marginTop: 2,
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#ef4444',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  modalBackdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '80%',
+    paddingBottom: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1f2937',
+  },
+  closeButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f3f4f6',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  notificationsList: {
+    flex: 1,
+    padding: 16,
+  },
+  notificationItem: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#f3f4f6',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  notificationIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  notificationContent: {
+    flex: 1,
+  },
+  notificationTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1f2937',
+    marginBottom: 4,
+  },
+  notificationMessage: {
+    fontSize: 14,
+    color: '#6b7280',
+    lineHeight: 20,
+    marginBottom: 4,
+  },
+  notificationTime: {
+    fontSize: 12,
+    color: '#9ca3af',
+  },
+  unreadDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#10b981',
+    marginLeft: 8,
+  },
+  emptyNotifications: {
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  emptyNotificationsText: {
+    fontSize: 16,
+    color: '#9ca3af',
+    marginTop: 16,
   },
 });
