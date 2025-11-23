@@ -18,6 +18,10 @@ export default function DailySummary({
   dailyGoal,
   mealCount,
 }: DailySummaryProps) {
+  console.log('📊 DailySummary - Received totalCalories:', totalCalories, 'Type:', typeof totalCalories);
+  console.log('📊 DailySummary - Received dailyGoal:', dailyGoal);
+  console.log('📊 DailySummary - Received mealCount:', mealCount);
+  
   const progress = Math.min((totalCalories / dailyGoal) * 100, 100);
   const remaining = Math.max(dailyGoal - totalCalories, 0);
   const isOverGoal = totalCalories > dailyGoal;
@@ -34,7 +38,7 @@ export default function DailySummary({
 
       <View style={styles.caloriesRow}>
         <View style={styles.caloriesInfo}>
-          <Text style={styles.caloriesValue}>{totalCalories}</Text>
+          <Text style={styles.caloriesValue}>{Math.round(totalCalories)}</Text>
           <Text style={styles.caloriesLabel}>consumed</Text>
         </View>
 
@@ -42,7 +46,7 @@ export default function DailySummary({
 
         <View style={styles.caloriesInfo}>
           <Text style={[styles.caloriesValue, isOverGoal && styles.overGoalText]}>
-            {remaining}
+            {Math.round(remaining)}
           </Text>
           <Text style={styles.caloriesLabel}>
             {isOverGoal ? 'over' : 'remaining'}
@@ -52,7 +56,7 @@ export default function DailySummary({
         <View style={styles.divider} />
 
         <View style={styles.caloriesInfo}>
-          <Text style={styles.goalValue}>{dailyGoal}</Text>
+          <Text style={styles.goalValue}>{Math.round(dailyGoal)}</Text>
           <Text style={styles.caloriesLabel}>goal</Text>
         </View>
       </View>

@@ -10,11 +10,11 @@ export type MealType = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snack';
 
 export interface NutritionItem {
   name: string;
-  calories: number;
+  calories: number | string; // Can be "Only available for premium subscribers." in free tier
   serving_size_g: number;
   fat_total_g: number;
   fat_saturated_g: number;
-  protein_g: number;
+  protein_g: number | string; // Can be "Only available for premium subscribers." in free tier
   sodium_mg: number;
   potassium_mg: number;
   cholesterol_mg: number;
@@ -35,6 +35,7 @@ export interface Meal {
   };
   timestamp: string;
   items: NutritionItem[];
+  isFavorite?: boolean;
 }
 
 interface MealsState {
@@ -84,6 +85,13 @@ export const mealsSlice = createSlice({
     clearMeals: (state) => {
       state.mealList = [];
       saveMealsToStorage([]);
+    },
+    toggleFavorite: (state, action: PayloadAction<string>) => {
+      const meal = state.mealList.find((m) => m.id === action.payload);
+      if (meal) {
+        meal.isFavorite = !meal.isFavorite;
+        saveMealsToStorage(state.mealList);
+      }
     },
   },
 });
@@ -142,6 +150,7 @@ export const {
   setDailyGoal,
   setLoading,
   clearMeals,
+  toggleFavorite,
 } = mealsSlice.actions;
 
 export default mealsSlice.reducer;

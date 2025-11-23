@@ -22,7 +22,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import MealCard from '../components/MealCard';
 import { selectAllMeals, selectIsLoading } from '../store/mealsSelectors';
 import type { Meal } from '../store/mealsSlice';
-import { loadMealsFromStorage } from '../store/mealsSlice';
+import { loadMealsFromStorage, toggleFavorite } from '../store/mealsSlice';
 
 interface MealsByDate {
   date: string;
@@ -146,7 +146,9 @@ export default function MealHistoryScreen() {
       description={meal.description}
       calories={meal.calories}
       timestamp={meal.timestamp}
+      isFavorite={meal.isFavorite}
       onPress={() => handleMealPress(meal)}
+      onToggleFavorite={() => dispatch(toggleFavorite(meal.id))}
     />
   );
 

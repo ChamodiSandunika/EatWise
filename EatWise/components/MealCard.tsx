@@ -15,7 +15,9 @@ interface MealCardProps {
   description: string;
   calories: number;
   timestamp: string; // ISO date string
+  isFavorite?: boolean;
   onPress: () => void;
+  onToggleFavorite?: () => void;
 }
 
 const getMealIcon = (mealType: MealType): keyof typeof Feather.glyphMap => {
@@ -62,8 +64,12 @@ export default function MealCard({
   description,
   calories,
   timestamp,
+  isFavorite = false,
   onPress,
+  onToggleFavorite,
 }: MealCardProps) {
+  console.log('🎴 MealCard - Received calories:', calories, 'Type:', typeof calories, 'Meal:', mealType);
+  
   const iconName = getMealIcon(mealType);
   const color = getMealColor(mealType);
   const timeString = formatTime(timestamp);
@@ -77,7 +83,26 @@ export default function MealCard({
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.mealType}>{mealType}</Text>
-          <Text style={styles.time}>{timeString}</Text>
+          <View style={styles.headerRight}>
+            {onToggleFavorite && (
+              <TouchableOpacity
+                onPress={(e) => {
+                  e.stopPropagation();
+                  onToggleFavorite();
+                }}
+                style={styles.favoriteButton}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Feather
+                  name={isFavorite ? 'heart' : 'heart'}
+                  size={20}
+                  color={isFavorite ? '#ef4444' : '#d1d5db'}
+                  fill={isFavorite ? '#ef4444' : 'none'}
+                />
+              </TouchableOpacity>
+            )}
+            <Text style={styles.time}>{timeString}</Text>
+          </View>
         </View>
         <Text style={styles.description} numberOfLines={2}>
           {description}
@@ -85,7 +110,9 @@ export default function MealCard({
         <View style={styles.footer}>
           <View style={styles.caloriesBadge}>
             <Feather name="zap" size={14} color="#10b981" />
-            <Text style={styles.calories}>{Math.round(calories)} cal</Text>
+            <Text style={styles.calories}>
+              {Math.round(typeof calories === 'number' ? calories : 0)} cal
+            </Text>
           </View>
           <Feather name="chevron-right" size={20} color="#9ca3af" />
         </View>
@@ -126,6 +153,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 6,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  favoriteButton: {
+    padding: 2,
   },
   mealType: {
     fontSize: 18,

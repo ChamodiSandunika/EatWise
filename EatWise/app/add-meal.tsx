@@ -55,12 +55,27 @@ export default function AddMealScreen() {
   // Calculate totals from nutrition results
   const calculateTotals = (items: NutritionItem[]) => {
     return items.reduce(
-      (totals, item) => ({
-        calories: totals.calories + item.calories,
-        protein: totals.protein + item.protein_g,
-        carbs: totals.carbs + item.carbohydrates_total_g,
-        fat: totals.fat + item.fat_total_g,
-      }),
+      (totals, item) => {
+        // Handle premium API restrictions - calculate calories from macros if unavailable
+        let itemCalories = typeof item.calories === 'number' ? item.calories : 0;
+        let itemProtein = typeof item.protein_g === 'number' ? item.protein_g : 0;
+        
+        // If calories is restricted but we have macros, calculate from macros
+        // Protein: 4 cal/g, Carbs: 4 cal/g, Fat: 9 cal/g
+        if (itemCalories === 0 || typeof item.calories === 'string') {
+          const carbs = item.carbohydrates_total_g || 0;
+          const fat = item.fat_total_g || 0;
+          itemCalories = (itemProtein * 4) + (carbs * 4) + (fat * 9);
+          console.log(`⚠️ Calculating calories for ${item.name}: P:${itemProtein} C:${carbs} F:${fat} = ${itemCalories} cal`);
+        }
+        
+        return {
+          calories: totals.calories + itemCalories,
+          protein: totals.protein + itemProtein,
+          carbs: totals.carbs + item.carbohydrates_total_g,
+          fat: totals.fat + item.fat_total_g,
+        };
+      },
       { calories: 0, protein: 0, carbs: 0, fat: 0 }
     );
   };
@@ -138,6 +153,20 @@ export default function AddMealScreen() {
         return;
       }
 
+      // Check if API returned premium restriction
+      const hasPremiumRestriction = data.some(
+        item => typeof item.calories === 'string' || typeof item.protein_g === 'string'
+      );
+      
+      if (hasPremiumRestriction) {
+        console.warn('⚠️ API returned premium restriction - calculating calories from macros');
+        Alert.alert(
+          'Note',
+          'Some nutrition data is restricted in the free API tier. Calories will be estimated from available macronutrients (Protein, Carbs, Fat).',
+          [{ text: 'OK' }]
+        );
+      }
+
       console.log('✅ Successfully fetched', data.length, 'items');
       setNutritionResults(data);
     } catch (error: any) {
@@ -174,6 +203,9 @@ export default function AddMealScreen() {
 
     const totals = calculateTotals(nutritionResults);
 
+    console.log('📊 Totals calculated:', totals);
+    console.log('📦 Nutrition results:', nutritionResults);
+
     const newMeal = {
       id: Date.now().toString(),
       title: selectedMealType,
@@ -188,9 +220,10 @@ export default function AddMealScreen() {
       items: nutritionResults,
     };
 
+    console.log('💾 Saving meal:', JSON.stringify(newMeal, null, 2));
     dispatch(addMeal(newMeal));
 
-    Alert.alert('Success', 'Meal logged successfully!', [
+    Alert.alert('Success', `Meal logged with ${Math.round(totals.calories)} calories!`, [
       {
         text: 'OK',
         onPress: () => router.back(),
@@ -354,20 +387,29 @@ export default function AddMealScreen() {
 
               {/* Individual Items */}
               <Text style={styles.itemsTitle}>Detected Items</Text>
-              {nutritionResults.map((item, index) => (
-                <View key={index} style={styles.nutritionItem}>
-                  <View style={styles.itemIconContainer}>
-                    <Feather name="check-circle" size={20} color="#10b981" />
+              {nutritionResults.map((item, index) => {
+                const itemCals = typeof item.calories === 'number' 
+                  ? item.calories 
+                  : (
+                      ((typeof item.protein_g === 'number' ? item.protein_g : 0) * 4) + 
+                      (item.carbohydrates_total_g * 4) + 
+                      (item.fat_total_g * 9)
+                    );
+                return (
+                  <View key={index} style={styles.nutritionItem}>
+                    <View style={styles.itemIconContainer}>
+                      <Feather name="check-circle" size={20} color="#10b981" />
+                    </View>
+                    <View style={styles.itemContent}>
+                      <Text style={styles.itemName}>{item.name}</Text>
+                      <Text style={styles.itemDetails}>
+                        {Math.round(itemCals)} cal • {item.serving_size_g}g serving
+                      </Text>
+                    </View>
+                    <Text style={styles.itemCalories}>{Math.round(itemCals)}</Text>
                   </View>
-                  <View style={styles.itemContent}>
-                    <Text style={styles.itemName}>{item.name}</Text>
-                    <Text style={styles.itemDetails}>
-                      {Math.round(item.calories)} cal • {item.serving_size_g}g serving
-                    </Text>
-                  </View>
-                  <Text style={styles.itemCalories}>{Math.round(item.calories)}</Text>
-                </View>
-              ))}
+                );
+              })}
             </View>
           )}
         </ScrollView>

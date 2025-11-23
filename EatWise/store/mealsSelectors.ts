@@ -34,7 +34,13 @@ export const selectTodaysMeals = createSelector(
 export const selectDailyCalories = createSelector(
   [selectTodaysMeals],
   (todaysMeals) => {
-    return todaysMeals.reduce((total: number, meal: any) => total + meal.calories, 0);
+    const total = todaysMeals.reduce((total: number, meal: any) => {
+      const mealCalories = typeof meal.calories === 'number' ? meal.calories : 0;
+      console.log(`🧮 Selector - Adding meal calories: ${mealCalories} (${meal.title})`);
+      return total + mealCalories;
+    }, 0);
+    console.log(`🧮 Selector - Total calories: ${total}`);
+    return total;
   }
 );
 

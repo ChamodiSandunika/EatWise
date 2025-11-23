@@ -30,7 +30,7 @@ import {
     selectTodaysMeals,
 } from '../../store/mealsSelectors';
 import type { Meal } from '../../store/mealsSlice';
-import { loadMealsFromStorage } from '../../store/mealsSlice';
+import { loadMealsFromStorage, toggleFavorite } from '../../store/mealsSlice';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -50,6 +50,16 @@ export default function HomeScreen() {
   useEffect(() => {
     dispatch(loadMealsFromStorage() as any);
   }, [dispatch]);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('🏠 Home Screen - Today\'s Meals:', todaysMeals.length);
+    console.log('🏠 Home Screen - Daily Calories:', dailyCalories);
+    console.log('🏠 Home Screen - Daily Goal:', dailyGoal);
+    if (todaysMeals.length > 0) {
+      console.log('🏠 First meal data:', JSON.stringify(todaysMeals[0], null, 2));
+    }
+  }, [todaysMeals, dailyCalories, dailyGoal]);
 
   // Handle pull-to-refresh
   const onRefresh = async () => {
@@ -81,7 +91,9 @@ export default function HomeScreen() {
       description={item.description}
       calories={item.calories}
       timestamp={item.timestamp}
+      isFavorite={item.isFavorite}
       onPress={() => handleMealPress(item)}
+      onToggleFavorite={() => dispatch(toggleFavorite(item.id))}
     />
   );
 
@@ -135,9 +147,17 @@ export default function HomeScreen() {
           <Text style={styles.greeting}>Hello,</Text>
           <Text style={styles.username}>{displayName}!</Text>
         </View>
-        <TouchableOpacity style={styles.notificationButton}>
-          <Feather name="bell" size={24} color="#374151" />
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <TouchableOpacity 
+            style={styles.notificationButton}
+            onPress={() => router.push('/debug-storage' as any)}
+          >
+            <Feather name="tool" size={20} color="#ef4444" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.notificationButton}>
+            <Feather name="bell" size={24} color="#374151" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Meals List with FlatList */}

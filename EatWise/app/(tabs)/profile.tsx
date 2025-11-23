@@ -220,8 +220,9 @@ export default function ProfileScreen() {
   };
 
   const remainingCalories = dailyGoal - dailyCalories;
+  const username = user?.firstName || user?.username || displayName || 'User';
   const email = user?.emailAddresses?.[0]?.emailAddress || 'guest@eatwise.com';
-  const initials = displayName
+  const initials = username
     .split(' ')
     .map((n) => n[0])
     .join('')
@@ -260,7 +261,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           )}
 
-          <Text style={styles.profileName}>{displayName}</Text>
+          <Text style={styles.profileName}>{username}</Text>
           <Text style={styles.profileEmail}>{email}</Text>
 
           <TouchableOpacity

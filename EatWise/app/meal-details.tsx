@@ -7,6 +7,7 @@ import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import {
+    Alert,
     SafeAreaView,
     ScrollView,
     StyleSheet,
@@ -14,29 +15,60 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectAllMeals } from '../store/mealsSelectors';
+import { removeMeal, toggleFavorite } from '../store/mealsSlice';
 
 export default function MealDetailsScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams();
+  const dispatch = useDispatch();
+  const { mealId } = useLocalSearchParams();
+  
+  // Get the meal from Redux store
+  const allMeals = useSelector(selectAllMeals);
+  const meal = allMeals.find((m: any) => m.id === mealId);
 
-  // Sample meal data - this will be fetched based on the id
-  const meal = {
-    id: id as string,
-    mealType: 'Breakfast',
-    description: '3 hoppers + sambol',
-    calories: 450,
-    timestamp: new Date(2024, 10, 21, 8, 30),
-    nutrients: {
-      protein: 12,
-      carbs: 58,
-      fat: 15,
-      fiber: 4,
-    },
-    ingredients: [
-      { name: 'Hoppers', amount: '3 pieces', calories: 300 },
-      { name: 'Sambol (coconut)', amount: '2 tbsp', calories: 80 },
-      { name: 'Dhal curry', amount: '1 cup', calories: 70 },
-    ],
+  if (!meal) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Feather name="arrow-left" size={24} color="#1f2937" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Meal Details</Text>
+          <View style={{ width: 24 }} />
+        </View>
+        <View style={styles.emptyContainer}>
+          <Feather name="alert-circle" size={64} color="#d1d5db" />
+          <Text style={styles.emptyText}>Meal not found</Text>
+          <TouchableOpacity style={styles.emptyButton} onPress={() => router.back()}>
+            <Text style={styles.emptyButtonText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const handleDelete = () => {
+    Alert.alert(
+      'Delete Meal',
+      'Are you sure you want to delete this meal?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            dispatch(removeMeal(meal.id));
+            router.back();
+          },
+        },
+      ]
+    );
+  };
+
+  const handleToggleFavorite = () => {
+    dispatch(toggleFavorite(meal.id));
   };
 
   const getMealIcon = (mealType: string) => {
@@ -69,8 +101,9 @@ export default function MealDetailsScreen() {
     }
   };
 
-  const color = getMealColor(meal.mealType);
-  const iconName = getMealIcon(meal.mealType);
+  const color = getMealColor(meal.title);
+  const iconName = getMealIcon(meal.title);
+  const mealDate = new Date(meal.timestamp);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -83,8 +116,13 @@ export default function MealDetailsScreen() {
           <Feather name="arrow-left" size={24} color="#1f2937" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Meal Details</Text>
-        <TouchableOpacity style={styles.moreButton}>
-          <Feather name="more-vertical" size={24} color="#1f2937" />
+        <TouchableOpacity style={styles.favoriteHeaderButton} onPress={handleToggleFavorite}>
+          <Feather
+            name="heart"
+            size={24}
+            color={meal.isFavorite ? '#ef4444' : '#d1d5db'}
+            fill={meal.isFavorite ? '#ef4444' : 'none'}
+          />
         </TouchableOpacity>
       </View>
 
@@ -94,13 +132,16 @@ export default function MealDetailsScreen() {
           <View style={[styles.mealIconLarge, { backgroundColor: color + '20' }]}>
             <Feather name={iconName as any} size={40} color={color} />
           </View>
-          <Text style={styles.mealType}>{meal.mealType}</Text>
+          <Text style={styles.mealType}>{meal.title}</Text>
           <Text style={styles.mealDescription}>{meal.description}</Text>
           <Text style={styles.mealTime}>
-            {meal.timestamp.toLocaleString('en-US', {
+            {mealDate.toLocaleDateString('en-US', {
               weekday: 'long',
               month: 'long',
               day: 'numeric',
+            })}
+            {' at '}
+            {mealDate.toLocaleTimeString('en-US', {
               hour: 'numeric',
               minute: '2-digit',
               hour12: true,
@@ -114,7 +155,7 @@ export default function MealDetailsScreen() {
             <Feather name="zap" size={24} color="#10b981" />
             <Text style={styles.cardTitle}>Total Calories</Text>
           </View>
-          <Text style={styles.caloriesValue}>{meal.calories}</Text>
+          <Text style={styles.caloriesValue}>{Math.round(meal.calories)}</Text>
           <Text style={styles.caloriesLabel}>calories</Text>
         </View>
 
@@ -126,59 +167,80 @@ export default function MealDetailsScreen() {
               <View style={[styles.nutrientIcon, { backgroundColor: '#dbeafe' }]}>
                 <Feather name="activity" size={20} color="#3b82f6" />
               </View>
-              <Text style={styles.nutrientValue}>{meal.nutrients.protein}g</Text>
+              <Text style={styles.nutrientValue}>{meal.macros.protein}g</Text>
               <Text style={styles.nutrientLabel}>Protein</Text>
             </View>
             <View style={styles.nutrientItem}>
               <View style={[styles.nutrientIcon, { backgroundColor: '#fef3c7' }]}>
                 <Feather name="pie-chart" size={20} color="#f59e0b" />
               </View>
-              <Text style={styles.nutrientValue}>{meal.nutrients.carbs}g</Text>
+              <Text style={styles.nutrientValue}>{meal.macros.carbs}g</Text>
               <Text style={styles.nutrientLabel}>Carbs</Text>
             </View>
             <View style={styles.nutrientItem}>
               <View style={[styles.nutrientIcon, { backgroundColor: '#fce7f3' }]}>
                 <Feather name="droplet" size={20} color="#ec4899" />
               </View>
-              <Text style={styles.nutrientValue}>{meal.nutrients.fat}g</Text>
+              <Text style={styles.nutrientValue}>{meal.macros.fat}g</Text>
               <Text style={styles.nutrientLabel}>Fat</Text>
-            </View>
-            <View style={styles.nutrientItem}>
-              <View style={[styles.nutrientIcon, { backgroundColor: '#dcfce7' }]}>
-                <Feather name="shield" size={20} color="#10b981" />
-              </View>
-              <Text style={styles.nutrientValue}>{meal.nutrients.fiber}g</Text>
-              <Text style={styles.nutrientLabel}>Fiber</Text>
             </View>
           </View>
         </View>
 
-        {/* Ingredients Card */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Ingredients</Text>
-          {meal.ingredients.map((ingredient, index) => (
-            <View key={index} style={styles.ingredientItem}>
-              <View style={styles.ingredientLeft}>
-                <View style={styles.ingredientDot} />
-                <View>
-                  <Text style={styles.ingredientName}>{ingredient.name}</Text>
-                  <Text style={styles.ingredientAmount}>{ingredient.amount}</Text>
+        {/* Food Items Card */}
+        {meal.items && meal.items.length > 0 && (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Food Items ({meal.items.length})</Text>
+            {meal.items.map((item: any, index: number) => (
+              <View key={index} style={styles.ingredientItem}>
+                <View style={styles.ingredientLeft}>
+                  <View style={styles.ingredientDot} />
+                  <View style={styles.ingredientInfo}>
+                    <Text style={styles.ingredientName}>{item.name}</Text>
+                    <Text style={styles.ingredientAmount}>{item.serving_size_g}g serving</Text>
+                  </View>
+                </View>
+                <View style={styles.ingredientRight}>
+                  <Text style={styles.ingredientCalories}>
+                    {Math.round(
+                      typeof item.calories === 'number' 
+                        ? item.calories 
+                        : (
+                            ((typeof item.protein_g === 'number' ? item.protein_g : 0) * 4) + 
+                            (item.carbohydrates_total_g * 4) + 
+                            (item.fat_total_g * 9)
+                          )
+                    )} cal
+                  </Text>
+                  <View style={styles.ingredientMacros}>
+                    <Text style={styles.ingredientMacroText}>
+                      P: {typeof item.protein_g === 'number' ? item.protein_g.toFixed(1) : '0.0'}g
+                    </Text>
+                    <Text style={styles.ingredientMacroText}>
+                      C: {item.carbohydrates_total_g.toFixed(1)}g
+                    </Text>
+                    <Text style={styles.ingredientMacroText}>
+                      F: {item.fat_total_g.toFixed(1)}g
+                    </Text>
+                  </View>
                 </View>
               </View>
-              <Text style={styles.ingredientCalories}>{ingredient.calories} cal</Text>
-            </View>
-          ))}
-        </View>
+            ))}
+          </View>
+        )}
 
         {/* Action Buttons */}
         <View style={styles.actionsContainer}>
-          <TouchableOpacity style={styles.editButton}>
-            <Feather name="edit-2" size={20} color="#fff" />
-            <Text style={styles.editButtonText}>Edit Meal</Text>
+          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+            <Feather name="trash-2" size={20} color="#fff" />
+            <Text style={styles.deleteButtonText}>Delete Meal</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.deleteButton}>
-            <Feather name="trash-2" size={20} color="#ef4444" />
-          </TouchableOpacity>
+        </View>
+
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>
+            Nutrition data provided by API Ninjas
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -211,11 +273,35 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1f2937',
   },
-  moreButton: {
+  favoriteHeaderButton: {
     width: 40,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#6b7280',
+    marginTop: 16,
+    marginBottom: 24,
+  },
+  emptyButton: {
+    backgroundColor: '#10b981',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  emptyButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#fff',
   },
   scrollView: {
     flex: 1,
@@ -325,7 +411,10 @@ const styles = StyleSheet.create({
   },
   ingredientLeft: {
     flexDirection: 'row',
-    alignItems: 'center',
+    flex: 1,
+    marginRight: 12,
+  },
+  ingredientInfo: {
     flex: 1,
   },
   ingredientDot: {
@@ -334,51 +423,62 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#10b981',
     marginRight: 12,
+    marginTop: 6,
   },
   ingredientName: {
     fontSize: 15,
-    fontWeight: '500',
+    fontWeight: '600',
     color: '#1f2937',
-    marginBottom: 2,
+    marginBottom: 4,
+    textTransform: 'capitalize',
   },
   ingredientAmount: {
     fontSize: 13,
     color: '#6b7280',
   },
   ingredientCalories: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: '700',
     color: '#10b981',
+    marginBottom: 6,
   },
-  actionsContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingBottom: 24,
-    gap: 12,
+  ingredientRight: {
+    alignItems: 'flex-end',
   },
-  editButton: {
-    flex: 1,
+  ingredientMacros: {
     flexDirection: 'row',
-    backgroundColor: '#10b981',
-    paddingVertical: 16,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
     gap: 8,
   },
-  editButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
+  ingredientMacroText: {
+    fontSize: 11,
+    color: '#9ca3af',
+    fontWeight: '500',
+  },
+  actionsContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
   },
   deleteButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 12,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#fee2e2',
+    justifyContent: 'center',
+    backgroundColor: '#ef4444',
+    paddingVertical: 16,
+    borderRadius: 12,
+    gap: 8,
+  },
+  deleteButtonText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  footer: {
+    paddingHorizontal: 16,
+    paddingBottom: 32,
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: 12,
+    color: '#9ca3af',
   },
 });
