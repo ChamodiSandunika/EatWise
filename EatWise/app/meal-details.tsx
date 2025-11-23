@@ -9,6 +9,7 @@ import React from 'react';
 import {
     Alert,
     ScrollView,
+    StatusBar,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -16,13 +17,16 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTheme } from '../contexts/ThemeContext';
 import { selectAllMeals } from '../store/mealsSelectors';
 import { removeMeal, toggleFavorite } from '../store/mealsSlice';
 
 export default function MealDetailsScreen() {
   const router = useRouter();
   const dispatch = useDispatch();
+  const { isDarkMode } = useTheme();
   const { mealId } = useLocalSearchParams();
+  const styles = createStyles(isDarkMode);
   
   // Get the meal from Redux store
   const allMeals = useSelector(selectAllMeals);
@@ -31,9 +35,10 @@ export default function MealDetailsScreen() {
   if (!meal) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
+        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Feather name="arrow-left" size={24} color="#1f2937" />
+            <Feather name="arrow-left" size={24} color={isDarkMode ? '#f9fafb' : '#1f2937'} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Meal Details</Text>
           <View style={{ width: 24 }} />
@@ -107,13 +112,14 @@ export default function MealDetailsScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <Feather name="arrow-left" size={24} color="#1f2937" />
+          <Feather name="arrow-left" size={24} color={isDarkMode ? '#f9fafb' : '#1f2937'} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Meal Details</Text>
         <TouchableOpacity style={styles.favoriteHeaderButton} onPress={handleToggleFavorite}>
@@ -247,10 +253,10 @@ export default function MealDetailsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: isDark ? '#111827' : '#f9fafb',
   },
   header: {
     flexDirection: 'row',
@@ -258,20 +264,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: isDark ? '#374151' : '#f3f4f6',
   },
   backButton: {
     width: 40,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: isDark ? '#374151' : '#f3f4f6',
+    borderRadius: 20,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   favoriteHeaderButton: {
     width: 40,
@@ -288,7 +296,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginTop: 16,
     marginBottom: 24,
   },
@@ -307,11 +315,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mealHeader: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     padding: 24,
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: isDark ? '#374151' : '#f3f4f6',
   },
   mealIconLarge: {
     width: 80,
@@ -324,12 +332,12 @@ const styles = StyleSheet.create({
   mealType: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 8,
   },
   mealDescription: {
     fontSize: 16,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     textAlign: 'center',
     marginBottom: 8,
   },
@@ -338,7 +346,7 @@ const styles = StyleSheet.create({
     color: '#9ca3af',
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     margin: 16,
     padding: 20,
     borderRadius: 16,
@@ -356,7 +364,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginLeft: 8,
   },
   caloriesValue: {
@@ -367,7 +375,7 @@ const styles = StyleSheet.create({
   },
   caloriesLabel: {
     fontSize: 16,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     textAlign: 'center',
     marginTop: 4,
   },
@@ -393,12 +401,12 @@ const styles = StyleSheet.create({
   nutrientValue: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginTop: 4,
   },
   nutrientLabel: {
     fontSize: 13,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginTop: 2,
   },
   ingredientItem: {
@@ -407,7 +415,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: isDark ? '#374151' : '#f3f4f6',
   },
   ingredientLeft: {
     flexDirection: 'row',
@@ -428,13 +436,13 @@ const styles = StyleSheet.create({
   ingredientName: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 4,
     textTransform: 'capitalize',
   },
   ingredientAmount: {
     fontSize: 13,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
   },
   ingredientCalories: {
     fontSize: 16,

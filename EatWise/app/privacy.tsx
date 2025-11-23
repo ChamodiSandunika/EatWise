@@ -154,7 +154,7 @@ export default function PrivacyScreen() {
       <View style={styles.container}>
         <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/profile')} style={styles.backButton}>
             <Feather name="arrow-left" size={24} color={isDarkMode ? '#f9fafb' : '#1f2937'} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Privacy & Security</Text>
@@ -168,7 +168,7 @@ export default function PrivacyScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity onPress={() => router.push('/(tabs)/profile')} style={styles.backButton}>
           <Feather name="arrow-left" size={24} color={isDarkMode ? '#f9fafb' : '#1f2937'} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Privacy & Security</Text>
