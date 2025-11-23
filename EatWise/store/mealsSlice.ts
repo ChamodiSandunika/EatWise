@@ -50,6 +50,7 @@ const initialState: MealsState = {
 };
 
 const STORAGE_KEY = '@eatwise_meals';
+const GOAL_STORAGE_KEY = '@eatwise_goal';
 
 export const mealsSlice = createSlice({
   name: 'meals',
@@ -75,6 +76,7 @@ export const mealsSlice = createSlice({
     },
     setDailyGoal: (state, action: PayloadAction<number>) => {
       state.dailyGoal = action.payload;
+      saveDailyGoalToStorage(action.payload);
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
@@ -95,6 +97,15 @@ async function saveMealsToStorage(meals: Meal[]) {
   }
 }
 
+// Helper function to save daily goal to AsyncStorage
+async function saveDailyGoalToStorage(goal: number) {
+  try {
+    await AsyncStorage.setItem(GOAL_STORAGE_KEY, goal.toString());
+  } catch (error) {
+    console.error('Error saving daily goal to storage:', error);
+  }
+}
+
 // Async thunk to load meals from AsyncStorage
 export const loadMealsFromStorage = () => async (dispatch: any) => {
   try {
@@ -108,6 +119,18 @@ export const loadMealsFromStorage = () => async (dispatch: any) => {
     console.error('Error loading meals from storage:', error);
   } finally {
     dispatch(setLoading(false));
+  }
+};
+
+// Async thunk to load daily goal from AsyncStorage
+export const loadDailyGoalFromStorage = () => async (dispatch: any) => {
+  try {
+    const storedGoal = await AsyncStorage.getItem(GOAL_STORAGE_KEY);
+    if (storedGoal) {
+      dispatch(setDailyGoal(parseInt(storedGoal, 10)));
+    }
+  } catch (error) {
+    console.error('Error loading daily goal from storage:', error);
   }
 };
 
