@@ -124,6 +124,39 @@ export default function AddMealScreen() {
       const responseText = await response.text();
       console.log('📄 Response body:', responseText);
 
+      // Check if response contains error message (even with 200 status)
+      let parsedResponse;
+      try {
+        parsedResponse = JSON.parse(responseText);
+      } catch (e) {
+        console.error('❌ Failed to parse response:', e);
+        Alert.alert('Error', 'Invalid response from API. Please try again.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Check for API error response (free tier limitation)
+      if (parsedResponse.error) {
+        console.error('❌ API Error:', parsedResponse.error);
+        
+        if (parsedResponse.error.includes('down for free users') || 
+            parsedResponse.error.includes('premium subscription')) {
+          Alert.alert(
+            'API Temporarily Unavailable',
+            'The nutrition API is currently down for free users. You can:\n\n' +
+            '1. Try again later\n' +
+            '2. Manually enter nutrition values\n' +
+            '3. Use alternative nutrition databases\n\n' +
+            'We apologize for the inconvenience.',
+            [{ text: 'OK' }]
+          );
+        } else {
+          Alert.alert('API Error', parsedResponse.error);
+        }
+        setIsLoading(false);
+        return;
+      }
+
       if (!response.ok) {
         let errorMessage = 'Failed to fetch nutrition data';
         
@@ -143,7 +176,7 @@ export default function AddMealScreen() {
         return;
       }
 
-      const data: NutritionItem[] = JSON.parse(responseText);
+      const data: NutritionItem[] = parsedResponse;
       console.log('✅ Parsed data:', data);
 
       if (!data || data.length === 0) {
