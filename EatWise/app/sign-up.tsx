@@ -50,9 +50,22 @@ export default function SignUpScreen() {
       return;
     }
 
-    // Validate password length
+    // Validate password strength (Clerk requirements)
     if (password.length < 8) {
       Alert.alert('Error', 'Password must be at least 8 characters');
+      return;
+    }
+
+    // Check for password complexity
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    
+    if (!hasUpperCase || !hasLowerCase || !hasNumber) {
+      Alert.alert(
+        'Weak Password',
+        'Password must contain at least:\n• One uppercase letter\n• One lowercase letter\n• One number'
+      );
       return;
     }
 
@@ -72,9 +85,23 @@ export default function SignUpScreen() {
       // and capture OTP code
       setPendingVerification(true);
     } catch (err: any) {
-      console.error(JSON.stringify(err, null, 2));
+      // Log error for debugging (only in development)
+      if (__DEV__) {
+        console.log('Sign up error:', err.errors?.[0]?.message);
+      }
+      
       // Show user-friendly error message
-      const errorMessage = err.errors?.[0]?.longMessage || err.errors?.[0]?.message || 'Unable to sign up';
+      let errorMessage = err.errors?.[0]?.longMessage || err.errors?.[0]?.message || 'Unable to sign up';
+      
+      // Handle specific error codes
+      if (err.errors?.[0]?.code === 'form_password_pwned') {
+        errorMessage = 'This password has been found in a data breach. Please use a different password.';
+      } else if (err.errors?.[0]?.code === 'form_param_format_invalid' && err.errors?.[0]?.meta?.paramName === 'password') {
+        errorMessage = 'Password must be at least 8 characters and include uppercase, lowercase, and numbers.';
+      } else if (err.errors?.[0]?.code === 'form_identifier_exists') {
+        errorMessage = 'This email is already registered. Please sign in instead.';
+      }
+      
       Alert.alert('Sign Up Error', errorMessage);
     } finally {
       setLoading(false);
@@ -234,6 +261,10 @@ export default function SignUpScreen() {
             </TouchableOpacity>
           </View>
 
+          <Text style={styles.passwordHint}>
+            Password must include: uppercase, lowercase, and numbers
+          </Text>
+
           <View style={styles.inputContainer}>
             <Feather name="lock" size={20} color="#9ca3af" style={styles.inputIcon} />
             <TextInput
@@ -334,6 +365,12 @@ const styles = StyleSheet.create({
   },
   eyeIcon: {
     padding: 8,
+  },
+  passwordHint: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginTop: -8,
+    marginLeft: 4,
   },
   button: {
     backgroundColor: '#10b981',
