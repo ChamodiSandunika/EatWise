@@ -84,3 +84,29 @@ export const selectTodaysMealCount = createSelector(
   [selectTodaysMeals],
   (meals) => meals.length
 );
+
+// Calculate sugar and sodium totals for today
+export const selectSugarAndSodiumTotals = createSelector(
+  [selectTodaysMeals],
+  (todaysMeals) => {
+    return todaysMeals.reduce(
+      (totals: any, meal: any) => {
+        let mealSugar = 0;
+        let mealSodium = 0;
+        
+        if (meal.items && Array.isArray(meal.items)) {
+          meal.items.forEach((item: any) => {
+            mealSugar += item.sugar_g || 0;
+            mealSodium += item.sodium_mg || 0;
+          });
+        }
+        
+        return {
+          sugar: totals.sugar + mealSugar,
+          sodium: totals.sodium + mealSodium,
+        };
+      },
+      { sugar: 0, sodium: 0 }
+    );
+  }
+);

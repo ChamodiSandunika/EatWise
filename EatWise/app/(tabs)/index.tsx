@@ -125,6 +125,26 @@ export default function HomeScreen() {
         mealCount={mealCount}
       />
 
+      {/* Health Advice Button */}
+      <TouchableOpacity
+        style={styles.adviceButton}
+        onPress={() => router.push('/advice')}
+        activeOpacity={0.7}
+      >
+        <View style={styles.adviceButtonLeft}>
+          <View style={styles.adviceIconContainer}>
+            <Feather name="heart" size={24} color="#10b981" />
+          </View>
+          <View>
+            <Text style={styles.adviceButtonTitle}>Smart Health Advice</Text>
+            <Text style={styles.adviceButtonSubtitle}>
+              Get personalized nutrition insights
+            </Text>
+          </View>
+        </View>
+        <Feather name="arrow-right" size={20} color="#9ca3af" />
+      </TouchableOpacity>
+
       {/* Section Title */}
       {todaysMeals.length > 0 && (
         <View style={styles.sectionHeader}>
@@ -283,17 +303,58 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 20,
-    bottom: 80,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    bottom: 20,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: '#10b981',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
     elevation: 8,
+  },
+  adviceButton: {
+    backgroundColor: '#fff',
+    marginHorizontal: 16,
+    marginTop: 16,
+    padding: 16,
+    borderRadius: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#dcfce7',
+  },
+  adviceButtonLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  adviceIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#f0fdf4',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  adviceButtonTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1f2937',
+  },
+  adviceButtonSubtitle: {
+    fontSize: 13,
+    color: '#6b7280',
+    marginTop: 2,
   },
 });
