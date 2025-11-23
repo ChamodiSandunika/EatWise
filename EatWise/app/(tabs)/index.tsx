@@ -6,10 +6,13 @@
 
 import { useUser } from '@clerk/clerk-expo';
 import { Feather } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     FlatList,
+    Image,
     Modal,
     Pressable,
     RefreshControl,
@@ -48,6 +51,24 @@ export default function HomeScreen() {
 
   const [refreshing, setRefreshing] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [profilePicture, setProfilePicture] = useState<string | null>(null);
+
+  // Load profile picture from storage (reload on focus)
+  useFocusEffect(
+    useCallback(() => {
+      const loadProfilePicture = async () => {
+        try {
+          const savedPicture = await AsyncStorage.getItem('@eatwise_profile_pic');
+          if (savedPicture) {
+            setProfilePicture(savedPicture);
+          }
+        } catch (error) {
+          console.error('Error loading profile picture:', error);
+        }
+      };
+      loadProfilePicture();
+    }, [])
+  );
 
   // Sample notifications
   const notifications = [
@@ -213,9 +234,23 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <View>
-          <Text style={styles.greeting}>Hello,</Text>
-          <Text style={styles.username}>{displayName}!</Text>
+        <View style={styles.headerLeft}>
+          <TouchableOpacity onPress={() => router.push('/profile' as any)}>
+            {profilePicture || user?.imageUrl ? (
+              <Image
+                source={{ uri: profilePicture || user?.imageUrl }}
+                style={styles.profileImage}
+              />
+            ) : (
+              <View style={styles.profileImagePlaceholder}>
+                <Feather name="user" size={24} color="#9ca3af" />
+              </View>
+            )}
+          </TouchableOpacity>
+          <View style={styles.greetingContainer}>
+            <Text style={styles.greeting}>Hello,</Text>
+            <Text style={styles.username}>{displayName}!</Text>
+          </View>
         </View>
         <TouchableOpacity 
           style={styles.notificationButton}
@@ -331,12 +366,37 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
     backgroundColor: '#fff',
   },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  profileImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 2,
+    borderColor: '#10b981',
+  },
+  profileImagePlaceholder: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#f3f4f6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#e5e7eb',
+  },
+  greetingContainer: {
+    flexDirection: 'column',
+  },
   greeting: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#6b7280',
   },
   username: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#1f2937',
   },
