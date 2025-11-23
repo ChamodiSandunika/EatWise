@@ -12,6 +12,7 @@ import {
     KeyboardAvoidingView,
     Platform,
     ScrollView,
+    StatusBar,
     StyleSheet,
     Text,
     TextInput,
@@ -19,10 +20,13 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp();
   const router = useRouter();
+  const { isDarkMode } = useTheme();
+  const styles = createStyles(isDarkMode);
 
   const [username, setUsername] = React.useState('');
   const [emailAddress, setEmailAddress] = React.useState('');
@@ -141,6 +145,7 @@ export default function SignUpScreen() {
   if (pendingVerification) {
     return (
       <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={{ flex: 1 }}
@@ -159,11 +164,11 @@ export default function SignUpScreen() {
 
           <View style={styles.form}>
             <View style={styles.inputContainer}>
-              <Feather name="key" size={20} color="#9ca3af" style={styles.inputIcon} />
+              <Feather name="key" size={20} color={isDarkMode ? '#9ca3af' : '#6b7280'} style={styles.inputIcon} />
               <TextInput
                 value={code}
                 placeholder="Enter verification code"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={isDarkMode ? '#6b7280' : '#9ca3af'}
                 onChangeText={setCode}
                 style={styles.input}
                 keyboardType="number-pad"
@@ -197,6 +202,7 @@ export default function SignUpScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
@@ -212,11 +218,11 @@ export default function SignUpScreen() {
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>
-            <Feather name="user" size={20} color="#9ca3af" style={styles.inputIcon} />
+            <Feather name="user" size={20} color={isDarkMode ? '#9ca3af' : '#6b7280'} style={styles.inputIcon} />
             <TextInput
               value={username}
               placeholder="Username"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={isDarkMode ? '#6b7280' : '#9ca3af'}
               onChangeText={setUsername}
               style={styles.input}
               autoCapitalize="none"
@@ -225,12 +231,12 @@ export default function SignUpScreen() {
           </View>
 
           <View style={styles.inputContainer}>
-            <Feather name="mail" size={20} color="#9ca3af" style={styles.inputIcon} />
+            <Feather name="mail" size={20} color={isDarkMode ? '#9ca3af' : '#6b7280'} style={styles.inputIcon} />
             <TextInput
               autoCapitalize="none"
               value={emailAddress}
               placeholder="Email address"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={isDarkMode ? '#6b7280' : '#9ca3af'}
               onChangeText={setEmailAddress}
               style={styles.input}
               keyboardType="email-address"
@@ -239,11 +245,11 @@ export default function SignUpScreen() {
           </View>
 
           <View style={styles.inputContainer}>
-            <Feather name="lock" size={20} color="#9ca3af" style={styles.inputIcon} />
+            <Feather name="lock" size={20} color={isDarkMode ? '#9ca3af' : '#6b7280'} style={styles.inputIcon} />
             <TextInput
               value={password}
               placeholder="Password (min. 8 characters)"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={isDarkMode ? '#6b7280' : '#9ca3af'}
               secureTextEntry={!showPassword}
               onChangeText={setPassword}
               style={styles.input}
@@ -256,7 +262,7 @@ export default function SignUpScreen() {
               <Feather
                 name={showPassword ? 'eye-off' : 'eye'}
                 size={20}
-                color="#9ca3af"
+                color={isDarkMode ? '#9ca3af' : '#6b7280'}
               />
             </TouchableOpacity>
           </View>
@@ -266,11 +272,11 @@ export default function SignUpScreen() {
           </Text>
 
           <View style={styles.inputContainer}>
-            <Feather name="lock" size={20} color="#9ca3af" style={styles.inputIcon} />
+            <Feather name="lock" size={20} color={isDarkMode ? '#9ca3af' : '#6b7280'} style={styles.inputIcon} />
             <TextInput
               value={confirmPassword}
               placeholder="Confirm password"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={isDarkMode ? '#6b7280' : '#9ca3af'}
               secureTextEntry={!showConfirmPassword}
               onChangeText={setConfirmPassword}
               style={styles.input}
@@ -283,7 +289,7 @@ export default function SignUpScreen() {
               <Feather
                 name={showConfirmPassword ? 'eye-off' : 'eye'}
                 size={20}
-                color="#9ca3af"
+                color={isDarkMode ? '#9ca3af' : '#6b7280'}
               />
             </TouchableOpacity>
           </View>
@@ -313,10 +319,10 @@ export default function SignUpScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#111827' : '#fff',
   },
   scrollContent: {
     flexGrow: 1,
@@ -333,13 +339,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     textAlign: 'center',
   },
   form: {
@@ -349,10 +355,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: isDark ? '#374151' : '#e5e7eb',
     borderRadius: 12,
     paddingHorizontal: 16,
-    backgroundColor: '#f9fafb',
+    backgroundColor: isDark ? '#1f2937' : '#f9fafb',
   },
   inputIcon: {
     marginRight: 12,
@@ -361,14 +367,14 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 56,
     fontSize: 16,
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   eyeIcon: {
     padding: 8,
   },
   passwordHint: {
     fontSize: 12,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginTop: -8,
     marginLeft: 4,
   },
@@ -392,7 +398,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
   },
   linkText: {
     fontSize: 14,
@@ -405,6 +411,6 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 14,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
   },
 });

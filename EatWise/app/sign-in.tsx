@@ -12,6 +12,7 @@ import {
     KeyboardAvoidingView,
     Platform,
     ScrollView,
+    StatusBar,
     StyleSheet,
     Text,
     TextInput,
@@ -19,10 +20,13 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function SignInScreen() {
   const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
+  const { isDarkMode } = useTheme();
+  const styles = createStyles(isDarkMode);
 
   const [emailAddress, setEmailAddress] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -58,6 +62,7 @@ export default function SignInScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
@@ -73,12 +78,12 @@ export default function SignInScreen() {
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>
-            <Feather name="mail" size={20} color="#9ca3af" style={styles.inputIcon} />
+            <Feather name="mail" size={20} color={isDarkMode ? '#9ca3af' : '#6b7280'} style={styles.inputIcon} />
             <TextInput
               autoCapitalize="none"
               value={emailAddress}
               placeholder="Email address"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={isDarkMode ? '#6b7280' : '#9ca3af'}
               onChangeText={setEmailAddress}
               style={styles.input}
               keyboardType="email-address"
@@ -87,11 +92,11 @@ export default function SignInScreen() {
           </View>
 
           <View style={styles.inputContainer}>
-            <Feather name="lock" size={20} color="#9ca3af" style={styles.inputIcon} />
+            <Feather name="lock" size={20} color={isDarkMode ? '#9ca3af' : '#6b7280'} style={styles.inputIcon} />
             <TextInput
               value={password}
               placeholder="Password"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={isDarkMode ? '#6b7280' : '#9ca3af'}
               secureTextEntry={!showPassword}
               onChangeText={setPassword}
               style={styles.input}
@@ -104,7 +109,7 @@ export default function SignInScreen() {
               <Feather
                 name={showPassword ? 'eye-off' : 'eye'}
                 size={20}
-                color="#9ca3af"
+                color={isDarkMode ? '#9ca3af' : '#6b7280'}
               />
             </TouchableOpacity>
           </View>
@@ -134,10 +139,10 @@ export default function SignInScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#111827' : '#fff',
   },
   scrollContent: {
     flexGrow: 1,
@@ -150,12 +155,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
   },
   form: {
     gap: 16,
@@ -164,10 +169,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: isDark ? '#374151' : '#e5e7eb',
     borderRadius: 12,
     paddingHorizontal: 16,
-    backgroundColor: '#f9fafb',
+    backgroundColor: isDark ? '#1f2937' : '#f9fafb',
   },
   inputIcon: {
     marginRight: 12,
@@ -176,7 +181,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 56,
     fontSize: 16,
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   eyeIcon: {
     padding: 8,
@@ -201,7 +206,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
   },
   linkText: {
     fontSize: 14,
