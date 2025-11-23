@@ -3,7 +3,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
     ScrollView,
     StatusBar,
     StyleSheet,
@@ -15,6 +14,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTheme } from '../contexts/ThemeContext';
+import { useThemedAlert } from '../hooks/useThemedAlert';
+import { ThemedAlert } from '../utils/themedAlert';
 
 const PRIVACY_SETTINGS_KEY = '@eatwise_privacy_settings';
 
@@ -43,6 +44,7 @@ const defaultSettings: PrivacySettings = {
 export default function PrivacyScreen() {
   const router = useRouter();
   const { isDarkMode } = useTheme();
+  const { alertConfig, isVisible, showAlert, hideAlert } = useThemedAlert();
   const [settings, setSettings] = useState<PrivacySettings>(defaultSettings);
   const [loading, setLoading] = useState(true);
 
@@ -69,7 +71,7 @@ export default function PrivacyScreen() {
       setSettings(newSettings);
     } catch (error) {
       console.error('Failed to save privacy settings:', error);
-      Alert.alert('Error', 'Failed to save privacy settings');
+      showAlert('Error', 'Failed to save privacy settings');
     }
   };
 
@@ -79,7 +81,7 @@ export default function PrivacyScreen() {
   };
 
   const handleExportData = () => {
-    Alert.alert(
+    showAlert(
       'Export Your Data',
       'This will prepare all your data for download. You will receive a JSON file with all your meals, goals, and settings.',
       [
@@ -87,7 +89,7 @@ export default function PrivacyScreen() {
         {
           text: 'Export',
           onPress: () => {
-            Alert.alert('Success', 'Your data export has been prepared. Check your downloads folder.');
+            showAlert('Success', 'Your data export has been prepared. Check your downloads folder.');
           },
         },
       ]
@@ -95,7 +97,7 @@ export default function PrivacyScreen() {
   };
 
   const handleDeleteAccount = () => {
-    Alert.alert(
+    showAlert(
       'Delete Account',
       'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.',
       [
@@ -104,7 +106,7 @@ export default function PrivacyScreen() {
           text: 'Delete',
           style: 'destructive',
           onPress: () => {
-            Alert.alert(
+            showAlert(
               'Confirm Deletion',
               'Please type DELETE to confirm account deletion.',
               [{ text: 'Cancel' }]
@@ -116,7 +118,7 @@ export default function PrivacyScreen() {
   };
 
   const handleClearCache = () => {
-    Alert.alert(
+    showAlert(
       'Clear Cache',
       'This will clear temporary data and may free up storage space. Your meals and settings will not be affected.',
       [
@@ -124,7 +126,7 @@ export default function PrivacyScreen() {
         {
           text: 'Clear',
           onPress: () => {
-            Alert.alert('Success', 'Cache cleared successfully.');
+            showAlert('Success', 'Cache cleared successfully.');
           },
         },
       ]
@@ -132,18 +134,16 @@ export default function PrivacyScreen() {
   };
 
   const viewPrivacyPolicy = () => {
-    Alert.alert(
+    showAlert(
       'Privacy Policy',
-      'This would open the full privacy policy in a web view or browser.',
-      [{ text: 'OK' }]
+      'This would open the full privacy policy in a web view or browser.'
     );
   };
 
   const viewTermsOfService = () => {
-    Alert.alert(
+    showAlert(
       'Terms of Service',
-      'This would open the terms of service in a web view or browser.',
-      [{ text: 'OK' }]
+      'This would open the terms of service in a web view or browser.'
     );
   };
 
@@ -360,6 +360,18 @@ export default function PrivacyScreen() {
           <Text style={styles.versionSubtext}>Last updated: November 2025</Text>
         </View>
       </ScrollView>
+
+      {/* Themed Alert Modal */}
+      {alertConfig && (
+        <ThemedAlert
+          visible={isVisible}
+          title={alertConfig.title}
+          message={alertConfig.message}
+          buttons={alertConfig.buttons}
+          isDarkMode={isDarkMode}
+          onDismiss={hideAlert}
+        />
+      )}
     </SafeAreaView>
   );
 }
