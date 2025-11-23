@@ -14,6 +14,7 @@ import {
     Image,
     Modal,
     ScrollView,
+    StatusBar,
     StyleSheet,
     Text,
     TextInput,
@@ -22,6 +23,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
+
+import { useTheme } from '../../contexts/ThemeContext';
 
 import {
     selectDailyCalories,
@@ -44,6 +47,7 @@ export default function ProfileScreen() {
   const dispatch = useDispatch();
   const { signOut } = useAuth();
   const { user } = useUser();
+  const { isDarkMode } = useTheme();
 
   // Redux selectors
   const todaysMeals = useSelector(selectTodaysMeals);
@@ -228,8 +232,11 @@ export default function ProfileScreen() {
     .toUpperCase()
     .substring(0, 2);
 
+  const styles = createStyles(isDarkMode);
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
@@ -490,28 +497,28 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: isDark ? '#111827' : '#f9fafb',
   },
   scrollContent: {
     paddingBottom: 40,
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: isDark ? '#374151' : '#f3f4f6',
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   profileCard: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     marginHorizontal: 16,
     marginTop: 16,
     padding: 24,
@@ -519,7 +526,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: isDark ? 0.3 : 0.05,
     shadowRadius: 8,
     elevation: 2,
   },
@@ -556,7 +563,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: '#fff',
+    borderColor: isDark ? '#1f2937' : '#fff',
   },
   removePhotoButton: {
     marginTop: 8,
@@ -570,12 +577,12 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 4,
   },
   profileEmail: {
     fontSize: 14,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginBottom: 16,
   },
   editProfileButton: {
@@ -583,7 +590,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 10,
-    backgroundColor: '#f0fdf4',
+    backgroundColor: isDark ? '#10b98133' : '#f0fdf4',
     borderRadius: 20,
     gap: 6,
   },
@@ -599,16 +606,16 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 12,
   },
   statsCard: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     borderRadius: 16,
     padding: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: isDark ? 0.3 : 0.05,
     shadowRadius: 8,
     elevation: 2,
   },
@@ -623,31 +630,31 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginTop: 8,
   },
   statLabel: {
     fontSize: 12,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginTop: 4,
     textAlign: 'center',
   },
   statDivider: {
     width: 1,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: isDark ? '#374151' : '#e5e7eb',
     marginHorizontal: 12,
   },
   goalCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: isDark ? 0.3 : 0.05,
     shadowRadius: 8,
     elevation: 2,
   },
@@ -662,28 +669,28 @@ const styles = StyleSheet.create({
   goalValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   goalLabel: {
     fontSize: 14,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
   },
   editGoalButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#f0fdf4',
+    backgroundColor: isDark ? '#10b98133' : '#f0fdf4',
     justifyContent: 'center',
     alignItems: 'center',
   },
   progressContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     borderRadius: 12,
     padding: 16,
   },
   progressBar: {
     height: 12,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: isDark ? '#374151' : '#f3f4f6',
     borderRadius: 6,
     overflow: 'hidden',
     marginBottom: 8,
@@ -694,20 +701,20 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: 13,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     textAlign: 'center',
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     padding: 16,
     borderRadius: 12,
     marginBottom: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: isDark ? 0.3 : 0.05,
     shadowRadius: 4,
     elevation: 1,
   },
@@ -726,20 +733,20 @@ const styles = StyleSheet.create({
   menuItemText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     marginHorizontal: 16,
     marginTop: 24,
     padding: 16,
     borderRadius: 12,
     gap: 8,
     borderWidth: 1,
-    borderColor: '#fee2e2',
+    borderColor: isDark ? '#7f1d1d' : '#fee2e2',
   },
   logoutText: {
     fontSize: 16,
@@ -752,11 +759,11 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: isDark ? '#6b7280' : '#9ca3af',
   },
   footerSubtext: {
     fontSize: 11,
-    color: '#d1d5db',
+    color: isDark ? '#4b5563' : '#d1d5db',
     marginTop: 4,
   },
   modalOverlay: {
@@ -767,7 +774,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     borderRadius: 16,
     padding: 24,
     width: '100%',
@@ -776,27 +783,27 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 8,
   },
   modalSubtitle: {
     fontSize: 14,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginBottom: 20,
   },
   modalInput: {
-    backgroundColor: '#f9fafb',
+    backgroundColor: isDark ? '#374151' : '#f9fafb',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: isDark ? '#4b5563' : '#e5e7eb',
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 20,
   },
   modalNote: {
     fontSize: 12,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginBottom: 20,
     fontStyle: 'italic',
   },
@@ -808,13 +815,13 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     borderRadius: 12,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: isDark ? '#374151' : '#f3f4f6',
     alignItems: 'center',
   },
   modalButtonCancelText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
   },
   modalButtonSave: {
     flex: 1,

@@ -16,6 +16,7 @@ interface MealCardProps {
   calories: number;
   timestamp: string; // ISO date string
   isFavorite?: boolean;
+  isDarkMode?: boolean;
   onPress: () => void;
   onToggleFavorite?: () => void;
 }
@@ -65,6 +66,7 @@ export default function MealCard({
   calories,
   timestamp,
   isFavorite = false,
+  isDarkMode = false,
   onPress,
   onToggleFavorite,
 }: MealCardProps) {
@@ -73,6 +75,7 @@ export default function MealCard({
   const iconName = getMealIcon(mealType);
   const color = getMealColor(mealType);
   const timeString = formatTime(timestamp);
+  const styles = createStyles(isDarkMode);
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
@@ -121,20 +124,20 @@ export default function MealCard({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (isDark: boolean) => StyleSheet.create({
   card: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: isDark ? 0.3 : 0.05,
     shadowRadius: 8,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: isDark ? '#374151' : '#f3f4f6',
   },
   iconContainer: {
     width: 60,
@@ -165,7 +168,7 @@ const styles = StyleSheet.create({
   mealType: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   time: {
     fontSize: 13,
@@ -174,7 +177,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 14,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     lineHeight: 20,
     marginBottom: 8,
   },
@@ -186,7 +189,7 @@ const styles = StyleSheet.create({
   caloriesBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f0fdf4',
+    backgroundColor: isDark ? '#10b98133' : '#f0fdf4',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 8,

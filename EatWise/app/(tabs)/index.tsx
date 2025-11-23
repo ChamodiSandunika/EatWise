@@ -17,6 +17,7 @@ import {
     Pressable,
     RefreshControl,
     ScrollView,
+    StatusBar,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -27,6 +28,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import DailySummary from '../../components/DailySummary';
 import MealCard from '../../components/MealCard';
+import { useTheme } from '../../contexts/ThemeContext';
 import {
     selectDailyCalories,
     selectDailyGoal,
@@ -41,6 +43,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const dispatch = useDispatch();
   const { user } = useUser();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   // Redux selectors
   const todaysMeals = useSelector(selectTodaysMeals);
@@ -59,11 +62,11 @@ export default function HomeScreen() {
       const loadProfilePicture = async () => {
         try {
           const savedPicture = await AsyncStorage.getItem('@eatwise_profile_pic');
-          if (savedPicture) {
-            setProfilePicture(savedPicture);
-          }
+          // Update state regardless - if null, it means the picture was removed
+          setProfilePicture(savedPicture);
         } catch (error) {
           console.error('Error loading profile picture:', error);
+          setProfilePicture(null);
         }
       };
       loadProfilePicture();
@@ -147,6 +150,7 @@ export default function HomeScreen() {
       calories={item.calories}
       timestamp={item.timestamp}
       isFavorite={item.isFavorite}
+      isDarkMode={isDarkMode}
       onPress={() => handleMealPress(item)}
       onToggleFavorite={() => dispatch(toggleFavorite(item.id))}
     />
@@ -178,6 +182,7 @@ export default function HomeScreen() {
         totalCalories={dailyCalories}
         dailyGoal={dailyGoal}
         mealCount={mealCount}
+        isDarkMode={isDarkMode}
       />
 
       {/* Health Advice Button */}
@@ -197,7 +202,7 @@ export default function HomeScreen() {
             </Text>
           </View>
         </View>
-        <Feather name="arrow-right" size={20} color="#9ca3af" />
+        <Feather name="arrow-right" size={20} color={isDarkMode ? '#6b7280' : '#9ca3af'} />
       </TouchableOpacity>
 
       {/* Section Title */}
@@ -212,8 +217,15 @@ export default function HomeScreen() {
     </>
   );
 
+  // Get dynamic styles based on theme
+  const styles = createStyles(isDarkMode);
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      <StatusBar 
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        backgroundColor={isDarkMode ? '#1f2937' : '#fff'}
+      />
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
@@ -234,23 +246,36 @@ export default function HomeScreen() {
             <Text style={styles.username}>{displayName}!</Text>
           </View>
         </View>
-        <TouchableOpacity
-          style={styles.notificationButton}
-          onPress={() => {
-            console.log('🔔 Bell clicked, showing notifications');
-            setShowNotifications(true);
-          }}
-          activeOpacity={0.7}
-        >
-          <Feather name="bell" size={24} color="#1f2937" />
-          {notifications.filter(n => !n.read).length > 0 && (
-            <View style={styles.notificationBadge}>
-              <Text style={styles.notificationBadgeText}>
-                {notifications.filter(n => !n.read).length}
-              </Text>
-            </View>
-          )}
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <TouchableOpacity
+            style={styles.themeButton}
+            onPress={toggleTheme}
+            activeOpacity={0.7}
+          >
+            <Feather 
+              name={isDarkMode ? 'sun' : 'moon'} 
+              size={22} 
+              color={isDarkMode ? '#fbbf24' : '#1f2937'} 
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.notificationButton}
+            onPress={() => {
+              console.log('🔔 Bell clicked, showing notifications');
+              setShowNotifications(true);
+            }}
+            activeOpacity={0.7}
+          >
+            <Feather name="bell" size={24} color={isDarkMode ? '#f9fafb' : '#1f2937'} />
+            {notifications.filter(n => !n.read).length > 0 && (
+              <View style={styles.notificationBadge}>
+                <Text style={styles.notificationBadgeText}>
+                  {notifications.filter(n => !n.read).length}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Meals List with FlatList */}
@@ -348,10 +373,10 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: isDark ? '#111827' : '#f9fafb',
   },
   listContent: {
     paddingBottom: 100,
@@ -363,7 +388,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 24,
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
   },
   headerLeft: {
     flexDirection: 'row',
@@ -392,18 +417,31 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 14,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
   },
   username: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  themeButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: isDark ? '#374151' : '#f3f4f6',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   notificationButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: isDark ? '#374151' : '#f3f4f6',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -418,7 +456,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   seeAllText: {
     fontSize: 14,
@@ -426,7 +464,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   emptyState: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     marginHorizontal: 16,
     marginTop: 20,
     padding: 48,
@@ -434,19 +472,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: isDark ? 0.3 : 0.05,
     shadowRadius: 8,
     elevation: 2,
   },
   emptyTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginTop: 16,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: isDark ? '#9ca3af' : '#9ca3af',
     marginTop: 8,
     textAlign: 'center',
   },
@@ -479,7 +517,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   adviceButton: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     marginHorizontal: 16,
     marginTop: 16,
     padding: 16,
@@ -489,11 +527,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: isDark ? 0.3 : 0.05,
     shadowRadius: 8,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#dcfce7',
+    borderColor: isDark ? '#10b981' : '#dcfce7',
   },
   adviceButtonLeft: {
     flexDirection: 'row',
@@ -505,18 +543,18 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#f0fdf4',
+    backgroundColor: isDark ? '#10b98133' : '#f0fdf4',
     justifyContent: 'center',
     alignItems: 'center',
   },
   adviceButtonTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   adviceButtonSubtitle: {
     fontSize: 13,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginTop: 2,
   },
   notificationBadge: {
@@ -530,7 +568,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#fff',
+    borderColor: isDark ? '#374151' : '#fff',
   },
   notificationBadgeText: {
     color: '#fff',
@@ -544,7 +582,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     flex: 1,
@@ -562,18 +600,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: isDark ? '#374151' : '#f3f4f6',
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   closeButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: isDark ? '#374151' : '#f3f4f6',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -586,15 +624,15 @@ const styles = StyleSheet.create({
   },
   notificationItem: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#111827' : '#fff',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: isDark ? '#374151' : '#f3f4f6',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: isDark ? 0.3 : 0.05,
     shadowRadius: 4,
     elevation: 2,
   },
@@ -612,12 +650,12 @@ const styles = StyleSheet.create({
   notificationTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 4,
   },
   notificationMessage: {
     fontSize: 14,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     lineHeight: 20,
     marginBottom: 4,
   },

@@ -10,6 +10,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 
+import { ThemeProvider } from '../contexts/ThemeContext';
 import { store } from '../store';
 
 const tokenCache = {
@@ -40,14 +41,16 @@ if (!publishableKey) {
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <Provider store={store}>
-        <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
-          <ClerkLoaded>
-            <StatusBar style="dark" />
-            <Slot />
-          </ClerkLoaded>
-        </ClerkProvider>
-      </Provider>
+      <ThemeProvider>
+        <Provider store={store}>
+          <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
+            <ClerkLoaded>
+              <StatusBar style="dark" />
+              <Slot />
+            </ClerkLoaded>
+          </ClerkProvider>
+        </Provider>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }

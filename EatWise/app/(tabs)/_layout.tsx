@@ -8,11 +8,13 @@ import { useAuth } from '@clerk/clerk-expo';
 import { Feather } from '@expo/vector-icons';
 import { Redirect, Tabs, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function TabsLayout() {
   const { isSignedIn, isLoaded } = useAuth();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { isDarkMode } = useTheme();
 
   // Redirect to sign-in if not authenticated
   if (isLoaded && !isSignedIn) {
@@ -24,11 +26,11 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#10b981',
-        tabBarInactiveTintColor: '#9ca3af',
+        tabBarInactiveTintColor: isDarkMode ? '#9ca3af' : '#6b7280',
         tabBarStyle: {
-          backgroundColor: '#fff',
+          backgroundColor: isDarkMode ? '#1f2937' : '#fff',
           borderTopWidth: 1,
-          borderTopColor: '#e5e7eb',
+          borderTopColor: isDarkMode ? '#374151' : '#e5e7eb',
           height: 60 + insets.bottom,
           paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
           paddingTop: 8,

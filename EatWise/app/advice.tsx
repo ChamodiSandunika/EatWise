@@ -9,6 +9,7 @@ import React from 'react';
 import {
     RefreshControl,
     ScrollView,
+    StatusBar,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -17,6 +18,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import AdviceCard from '../components/AdviceCard';
+import { useTheme } from '../contexts/ThemeContext';
 import {
     selectDailyCalories,
     selectDailyGoal,
@@ -33,7 +35,9 @@ import {
 
 export default function AdviceScreen() {
   const router = useRouter();
+  const { isDarkMode } = useTheme();
   const [refreshing, setRefreshing] = React.useState(false);
+  const styles = createStyles(isDarkMode);
 
   // Get data from Redux
   const todaysMeals = useSelector(selectTodaysMeals);
@@ -71,10 +75,11 @@ export default function AdviceScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Feather name="arrow-left" size={24} color="#1f2937" />
+          <Feather name="arrow-left" size={24} color={isDarkMode ? '#f9fafb' : '#1f2937'} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Health Advice</Text>
         <View style={styles.headerRight} />
@@ -187,7 +192,7 @@ export default function AdviceScreen() {
                 {advice.length} recommendation{advice.length !== 1 ? 's' : ''} for you
               </Text>
               {advice.map((item) => (
-                <AdviceCard key={item.id} advice={item} />
+                <AdviceCard key={item.id} advice={item} isDarkMode={isDarkMode} />
               ))}
             </>
           ) : (
@@ -215,10 +220,10 @@ export default function AdviceScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: isDark ? '#111827' : '#f9fafb',
   },
   header: {
     flexDirection: 'row',
@@ -226,20 +231,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: isDark ? '#374151' : '#f3f4f6',
   },
   backButton: {
     width: 40,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: isDark ? '#374151' : '#f3f4f6',
+    borderRadius: 20,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   headerRight: {
     width: 40,
@@ -248,7 +255,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   motivationalBanner: {
-    backgroundColor: '#f0fdf4',
+    backgroundColor: isDark ? '#1e3a2e' : '#f0fdf4',
     marginHorizontal: 16,
     marginTop: 16,
     padding: 20,
@@ -257,13 +264,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 16,
     borderWidth: 1,
-    borderColor: '#bbf7d0',
+    borderColor: isDark ? '#2d5a45' : '#bbf7d0',
   },
   motivationalIconContainer: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#dcfce7',
+    backgroundColor: isDark ? '#2d5a45' : '#dcfce7',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -271,11 +278,11 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: '600',
-    color: '#166534',
+    color: isDark ? '#86efac' : '#166534',
     lineHeight: 24,
   },
   summaryCard: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     marginHorizontal: 16,
     marginTop: 16,
     padding: 20,
@@ -295,7 +302,7 @@ const styles = StyleSheet.create({
   summaryTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   caloriesSection: {
     marginBottom: 20,
@@ -309,16 +316,16 @@ const styles = StyleSheet.create({
   caloriesLabel: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
   },
   caloriesValue: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   progressBarContainer: {
     height: 8,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: isDark ? '#374151' : '#f3f4f6',
     borderRadius: 4,
     overflow: 'hidden',
     marginBottom: 8,
@@ -338,7 +345,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#f3f4f6',
+    borderTopColor: isDark ? '#374151' : '#f3f4f6',
   },
   macroItem: {
     flex: 1,
@@ -355,7 +362,7 @@ const styles = StyleSheet.create({
   macroValue: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   macroLabel: {
     fontSize: 12,
@@ -366,25 +373,25 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#f3f4f6',
+    borderTopColor: isDark ? '#374151' : '#f3f4f6',
   },
   extraNutrientItem: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#f9fafb',
+    backgroundColor: isDark ? '#111827' : '#f9fafb',
     padding: 12,
     borderRadius: 12,
   },
   extraNutrientLabel: {
     fontSize: 13,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     fontWeight: '600',
   },
   extraNutrientValue: {
     fontSize: 14,
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     fontWeight: '700',
   },
   adviceSection: {
@@ -400,15 +407,15 @@ const styles = StyleSheet.create({
   adviceSectionTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   adviceCount: {
     fontSize: 14,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginBottom: 16,
   },
   noAdviceContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     padding: 40,
     borderRadius: 20,
     alignItems: 'center',
@@ -421,13 +428,13 @@ const styles = StyleSheet.create({
   noAdviceTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginTop: 16,
     marginBottom: 8,
   },
   noAdviceText: {
     fontSize: 15,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     textAlign: 'center',
     lineHeight: 22,
   },

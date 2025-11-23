@@ -13,6 +13,7 @@ import {
     KeyboardAvoidingView,
     Platform,
     ScrollView,
+    StatusBar,
     StyleSheet,
     Text,
     TextInput,
@@ -22,6 +23,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 
+import { useTheme } from '../contexts/ThemeContext';
 import type { MealType, NutritionItem } from '../store/mealsSlice';
 import { addMeal } from '../store/mealsSlice';
 
@@ -45,6 +47,7 @@ const MEAL_TYPES: MealTypeOption[] = [
 export default function AddMealScreen() {
   const router = useRouter();
   const dispatch = useDispatch();
+  const { isDarkMode } = useTheme();
 
   const [selectedMealType, setSelectedMealType] = useState<MealType>('Breakfast');
   const [mealDescription, setMealDescription] = useState('');
@@ -231,13 +234,15 @@ export default function AddMealScreen() {
   };
 
   const totals = nutritionResults ? calculateTotals(nutritionResults) : null;
+  const styles = createStyles(isDarkMode);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Feather name="x" size={24} color="#1f2937" />
+          <Feather name="x" size={24} color={isDarkMode ? '#f9fafb' : '#1f2937'} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Add Meal</Text>
         <View style={styles.headerRight} />
@@ -263,8 +268,8 @@ export default function AddMealScreen() {
                     style={[
                       styles.mealTypeCard,
                       {
-                        backgroundColor: isSelected ? mealType.bgColor : '#fff',
-                        borderColor: isSelected ? mealType.color : '#e5e7eb',
+                        backgroundColor: isSelected ? mealType.bgColor : (isDarkMode ? '#1f2937' : '#fff'),
+                        borderColor: isSelected ? mealType.color : (isDarkMode ? '#374151' : '#e5e7eb'),
                         borderWidth: isSelected ? 2 : 1,
                       },
                     ]}
@@ -273,12 +278,12 @@ export default function AddMealScreen() {
                     <Feather
                       name={mealType.icon as any}
                       size={24}
-                      color={isSelected ? mealType.color : '#9ca3af'}
+                      color={isSelected ? mealType.color : (isDarkMode ? '#9ca3af' : '#9ca3af')}
                     />
                     <Text
                       style={[
                         styles.mealTypeText,
-                        { color: isSelected ? mealType.color : '#6b7280' },
+                        { color: isSelected ? mealType.color : (isDarkMode ? '#9ca3af' : '#6b7280') },
                       ]}
                     >
                       {mealType.type}
@@ -425,10 +430,10 @@ export default function AddMealScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: isDark ? '#111827' : '#f9fafb',
   },
   header: {
     flexDirection: 'row',
@@ -436,22 +441,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: isDark ? '#374151' : '#f3f4f6',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: isDark ? '#374151' : '#f3f4f6',
     justifyContent: 'center',
     alignItems: 'center',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   headerRight: {
     width: 40,
@@ -469,12 +474,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 8,
   },
   sectionHint: {
     fontSize: 14,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginBottom: 16,
     lineHeight: 20,
   },
@@ -490,23 +495,24 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     gap: 8,
+    backgroundColor: isDark ? '#1f2937' : '#fff',
   },
   mealTypeText: {
     fontSize: 14,
     fontWeight: '600',
   },
   textInput: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: isDark ? '#374151' : '#e5e7eb',
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     minHeight: 120,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: isDark ? 0.3 : 0.05,
     shadowRadius: 4,
     elevation: 1,
   },
@@ -536,7 +542,7 @@ const styles = StyleSheet.create({
   },
   totalCaloriesCard: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     padding: 20,
     borderRadius: 16,
     alignItems: 'center',
@@ -553,7 +559,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#f0fdf4',
+    backgroundColor: isDark ? '#10b98133' : '#f0fdf4',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -563,11 +569,11 @@ const styles = StyleSheet.create({
   totalCaloriesValue: {
     fontSize: 36,
     fontWeight: '800',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   totalCaloriesLabel: {
     fontSize: 14,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginTop: 4,
   },
   macrosGrid: {
@@ -577,13 +583,13 @@ const styles = StyleSheet.create({
   },
   macroCard: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: isDark ? 0.3 : 0.05,
     shadowRadius: 4,
     elevation: 1,
   },
@@ -598,30 +604,30 @@ const styles = StyleSheet.create({
   macroValue: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   macroLabel: {
     fontSize: 12,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginTop: 4,
   },
   itemsTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginTop: 24,
     marginBottom: 12,
   },
   nutritionItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     padding: 16,
     borderRadius: 12,
     marginBottom: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: isDark ? 0.3 : 0.05,
     shadowRadius: 4,
     elevation: 1,
   },
@@ -629,7 +635,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f0fdf4',
+    backgroundColor: isDark ? '#10b98133' : '#f0fdf4',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -640,12 +646,12 @@ const styles = StyleSheet.create({
   itemName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     textTransform: 'capitalize',
   },
   itemDetails: {
     fontSize: 13,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginTop: 2,
   },
   itemCalories: {
@@ -658,14 +664,14 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: '#f3f4f6',
+    borderTopColor: isDark ? '#374151' : '#f3f4f6',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: isDark ? 0.3 : 0.1,
     shadowRadius: 8,
     elevation: 8,
   },

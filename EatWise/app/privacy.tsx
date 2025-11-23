@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import {
     Alert,
     ScrollView,
+    StatusBar,
     StyleSheet,
     Switch,
     Text,
@@ -12,6 +13,8 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { useTheme } from '../contexts/ThemeContext';
 
 const PRIVACY_SETTINGS_KEY = '@eatwise_privacy_settings';
 
@@ -39,6 +42,7 @@ const defaultSettings: PrivacySettings = {
 
 export default function PrivacyScreen() {
   const router = useRouter();
+  const { isDarkMode } = useTheme();
   const [settings, setSettings] = useState<PrivacySettings>(defaultSettings);
   const [loading, setLoading] = useState(true);
 
@@ -143,12 +147,15 @@ export default function PrivacyScreen() {
     );
   };
 
+  const styles = createStyles(isDarkMode);
+
   if (loading) {
     return (
       <View style={styles.container}>
+        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Feather name="arrow-left" size={24} color="#1f2937" />
+            <Feather name="arrow-left" size={24} color={isDarkMode ? '#f9fafb' : '#1f2937'} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Privacy & Security</Text>
           <View style={{ width: 24 }} />
@@ -159,9 +166,10 @@ export default function PrivacyScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Feather name="arrow-left" size={24} color="#1f2937" />
+          <Feather name="arrow-left" size={24} color={isDarkMode ? '#f9fafb' : '#1f2937'} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Privacy & Security</Text>
         <View style={{ width: 24 }} />
@@ -183,6 +191,7 @@ export default function PrivacyScreen() {
               description="Help improve the app by sharing anonymous usage statistics"
               value={settings.shareUsageData}
               onToggle={() => toggleSetting('shareUsageData')}
+              styles={styles}
             />
             <View style={styles.divider} />
             <SettingItem
@@ -192,6 +201,7 @@ export default function PrivacyScreen() {
               description="Allow personalized recommendations based on your habits"
               value={settings.personalization}
               onToggle={() => toggleSetting('personalization')}
+              styles={styles}
             />
             <View style={styles.divider} />
             <SettingItem
@@ -201,6 +211,7 @@ export default function PrivacyScreen() {
               description="Automatically send crash reports to help fix bugs"
               value={settings.crashReports}
               onToggle={() => toggleSetting('crashReports')}
+              styles={styles}
             />
             <View style={styles.divider} />
             <SettingItem
@@ -210,6 +221,7 @@ export default function PrivacyScreen() {
               description="Receive promotional emails and special offers"
               value={settings.marketingEmails}
               onToggle={() => toggleSetting('marketingEmails')}
+              styles={styles}
             />
           </View>
         </View>
@@ -229,6 +241,7 @@ export default function PrivacyScreen() {
               description="Use fingerprint or face ID to unlock the app"
               value={settings.biometricAuth}
               onToggle={() => toggleSetting('biometricAuth')}
+              styles={styles}
             />
             <View style={styles.divider} />
             <SettingItem
@@ -238,6 +251,7 @@ export default function PrivacyScreen() {
               description="Automatically lock the app when inactive"
               value={settings.autoLock}
               onToggle={() => toggleSetting('autoLock')}
+              styles={styles}
             />
             <View style={styles.divider} />
             <SettingItem
@@ -247,6 +261,7 @@ export default function PrivacyScreen() {
               description="Hide sensitive information on app switcher"
               value={settings.privateMode}
               onToggle={() => toggleSetting('privateMode')}
+              styles={styles}
             />
             <View style={styles.divider} />
             <SettingItem
@@ -256,6 +271,7 @@ export default function PrivacyScreen() {
               description="Display calorie information on the home screen"
               value={settings.showCaloriesOnHome}
               onToggle={() => toggleSetting('showCaloriesOnHome')}
+              styles={styles}
             />
           </View>
         </View>
@@ -275,6 +291,7 @@ export default function PrivacyScreen() {
               description="Download all your data in JSON format"
               onPress={handleExportData}
               showArrow
+              styles={styles}
             />
             <View style={styles.divider} />
             <ActionItem
@@ -284,6 +301,7 @@ export default function PrivacyScreen() {
               description="Free up storage space"
               onPress={handleClearCache}
               showArrow
+              styles={styles}
             />
             <View style={styles.divider} />
             <ActionItem
@@ -293,6 +311,7 @@ export default function PrivacyScreen() {
               description="Permanently delete your account and all data"
               onPress={handleDeleteAccount}
               showArrow
+              styles={styles}
             />
           </View>
         </View>
@@ -309,6 +328,7 @@ export default function PrivacyScreen() {
               description="Read our privacy policy"
               onPress={viewPrivacyPolicy}
               showArrow
+              styles={styles}
             />
             <View style={styles.divider} />
             <ActionItem
@@ -318,6 +338,7 @@ export default function PrivacyScreen() {
               description="Read our terms of service"
               onPress={viewTermsOfService}
               showArrow
+              styles={styles}
             />
           </View>
         </View>
@@ -350,9 +371,10 @@ interface SettingItemProps {
   description: string;
   value: boolean;
   onToggle: () => void;
+  styles: any;
 }
 
-function SettingItem({ icon, iconBg, title, description, value, onToggle }: SettingItemProps) {
+function SettingItem({ icon, iconBg, title, description, value, onToggle, styles }: SettingItemProps) {
   return (
     <View style={styles.settingItem}>
       <View style={styles.settingLeft}>
@@ -381,9 +403,10 @@ interface ActionItemProps {
   description: string;
   onPress: () => void;
   showArrow?: boolean;
+  styles: any;
 }
 
-function ActionItem({ icon, iconBg, title, description, onPress, showArrow }: ActionItemProps) {
+function ActionItem({ icon, iconBg, title, description, onPress, showArrow, styles }: ActionItemProps) {
   return (
     <TouchableOpacity style={styles.actionItem} onPress={onPress}>
       <View style={styles.actionLeft}>
@@ -400,28 +423,34 @@ function ActionItem({ icon, iconBg, title, description, onPress, showArrow }: Ac
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: isDark ? '#111827' : '#f9fafb',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: isDark ? '#374151' : '#f3f4f6',
   },
   backButton: {
     padding: 4,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: isDark ? '#374151' : '#f3f4f6',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   scrollView: {
     flex: 1,
@@ -436,16 +465,16 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 4,
   },
   sectionDescription: {
     fontSize: 14,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginBottom: 12,
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     borderRadius: 16,
     padding: 4,
     shadowColor: '#000',
@@ -480,16 +509,16 @@ const styles = StyleSheet.create({
   settingTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 2,
   },
   settingDescription: {
     fontSize: 13,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
   },
   divider: {
     height: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: isDark ? '#374151' : '#f3f4f6',
     marginLeft: 68,
   },
   actionItem: {
@@ -506,14 +535,14 @@ const styles = StyleSheet.create({
   },
   infoBox: {
     flexDirection: 'row',
-    backgroundColor: '#f0fdf4',
+    backgroundColor: isDark ? '#1e3a2e' : '#f0fdf4',
     marginHorizontal: 16,
     marginTop: 24,
     padding: 16,
     borderRadius: 12,
     gap: 12,
     borderWidth: 1,
-    borderColor: '#bbf7d0',
+    borderColor: isDark ? '#2d5a45' : '#bbf7d0',
   },
   infoTextContainer: {
     flex: 1,
@@ -521,12 +550,12 @@ const styles = StyleSheet.create({
   infoTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#166534',
+    color: isDark ? '#86efac' : '#166534',
     marginBottom: 4,
   },
   infoText: {
     fontSize: 13,
-    color: '#15803d',
+    color: isDark ? '#86efac' : '#15803d',
     lineHeight: 18,
   },
   versionContainer: {
