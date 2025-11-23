@@ -18,11 +18,13 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp();
   const router = useRouter();
 
+  const [username, setUsername] = React.useState('');
   const [emailAddress, setEmailAddress] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [confirmPassword, setConfirmPassword] = React.useState('');
@@ -35,6 +37,12 @@ export default function SignUpScreen() {
   // Handle submission of sign-up form
   const onSignUpPress = async () => {
     if (!isLoaded) return;
+
+    // Validate username
+    if (!username || username.length < 3) {
+      Alert.alert('Error', 'Username must be at least 3 characters');
+      return;
+    }
 
     // Validate passwords match
     if (password !== confirmPassword) {
@@ -54,6 +62,7 @@ export default function SignUpScreen() {
       await signUp.create({
         emailAddress,
         password,
+        firstName: username, // Store username as firstName for now
       });
 
       // Send user an email with verification code
@@ -104,10 +113,11 @@ export default function SignUpScreen() {
 
   if (pendingVerification) {
     return (
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
-      >
+      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
@@ -153,15 +163,17 @@ export default function SignUpScreen() {
             </TouchableOpacity>
           </View>
         </ScrollView>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     );
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
@@ -172,6 +184,19 @@ export default function SignUpScreen() {
         </View>
 
         <View style={styles.form}>
+          <View style={styles.inputContainer}>
+            <Feather name="user" size={20} color="#9ca3af" style={styles.inputIcon} />
+            <TextInput
+              value={username}
+              placeholder="Username"
+              placeholderTextColor="#9ca3af"
+              onChangeText={setUsername}
+              style={styles.input}
+              autoCapitalize="none"
+              autoComplete="username"
+            />
+          </View>
+
           <View style={styles.inputContainer}>
             <Feather name="mail" size={20} color="#9ca3af" style={styles.inputIcon} />
             <TextInput
@@ -235,7 +260,7 @@ export default function SignUpScreen() {
           <TouchableOpacity
             onPress={onSignUpPress}
             style={styles.button}
-            disabled={loading || !emailAddress || !password || !confirmPassword}
+            disabled={loading || !username || !emailAddress || !password || !confirmPassword}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />
@@ -252,7 +277,8 @@ export default function SignUpScreen() {
           </View>
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
