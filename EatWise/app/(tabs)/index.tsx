@@ -88,7 +88,7 @@ export default function HomeScreen() {
       time: '5 hours ago',
       icon: 'check-circle' as const,
       color: '#3b82f6',
-      read: true,
+      read: false,
     },
     {
       id: '3',
@@ -97,25 +97,7 @@ export default function HomeScreen() {
       time: '1 day ago',
       icon: 'droplet' as const,
       color: '#06b6d4',
-      read: true,
-    },
-    {
-      id: '4',
-      title: 'Weekly Progress Report',
-      message: 'You\'ve maintained your calorie goals for 5 out of 7 days this week. Excellent work!',
-      time: '2 days ago',
-      icon: 'trending-up' as const,
-      color: '#8b5cf6',
-      read: true,
-    },
-    {
-      id: '5',
-      title: 'New Feature Available',
-      message: 'Check out the Smart Health Advice feature to get personalized nutrition insights!',
-      time: '3 days ago',
-      icon: 'star' as const,
-      color: '#f59e0b',
-      read: true,
+      read: false,
     },
   ];
 
@@ -252,16 +234,21 @@ export default function HomeScreen() {
             <Text style={styles.username}>{displayName}!</Text>
           </View>
         </View>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.notificationButton}
           onPress={() => {
-            console.log('Bell clicked, showing notifications');
+            console.log('🔔 Bell clicked, showing notifications');
             setShowNotifications(true);
           }}
+          activeOpacity={0.7}
         >
-          <Feather name="bell" size={24} color="#374151" />
-          {notifications.some(n => !n.read) && (
-            <View style={styles.notificationBadge} />
+          <Feather name="bell" size={24} color="#1f2937" />
+          {notifications.filter(n => !n.read).length > 0 && (
+            <View style={styles.notificationBadge}>
+              <Text style={styles.notificationBadgeText}>
+                {notifications.filter(n => !n.read).length}
+              </Text>
+            </View>
           )}
         </TouchableOpacity>
       </View>
@@ -295,19 +282,21 @@ export default function HomeScreen() {
       </TouchableOpacity>
 
       {/* Notifications Modal */}
-      {console.log('Modal visible state:', showNotifications)}
       <Modal
         visible={showNotifications}
         animationType="slide"
         transparent={true}
         onRequestClose={() => setShowNotifications(false)}
+        statusBarTranslucent
       >
-        <View style={styles.modalOverlay}>
-          <Pressable 
-            style={styles.modalBackdrop}
-            onPress={() => setShowNotifications(false)}
-          />
-          <View style={styles.modalContent}>
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setShowNotifications(false)}
+        >
+          <Pressable
+            style={styles.modalContent}
+            onPress={(e) => e.stopPropagation()}
+          >
             {/* Modal Header */}
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Notifications</Text>
@@ -320,10 +309,20 @@ export default function HomeScreen() {
             </View>
 
             {/* Notifications List */}
-            <ScrollView style={styles.notificationsList}>
+            <ScrollView
+              style={styles.notificationsList}
+              contentContainerStyle={styles.notificationsListContent}
+              showsVerticalScrollIndicator={true}
+              bounces={true}
+            >
               {notifications.length > 0 ? (
                 notifications.map((notification) => (
-                  <View key={notification.id} style={styles.notificationItem}>
+                  <TouchableOpacity
+                    key={notification.id}
+                    style={styles.notificationItem}
+                    activeOpacity={0.7}
+                    onPress={() => console.log('Notification clicked:', notification.id)}
+                  >
                     <View style={[styles.notificationIcon, { backgroundColor: `${notification.color}20` }]}>
                       <Feather name={notification.icon} size={24} color={notification.color} />
                     </View>
@@ -333,7 +332,7 @@ export default function HomeScreen() {
                       <Text style={styles.notificationTime}>{notification.time}</Text>
                     </View>
                     {!notification.read && <View style={styles.unreadDot} />}
-                  </View>
+                  </TouchableOpacity>
                 ))
               ) : (
                 <View style={styles.emptyNotifications}>
@@ -342,8 +341,8 @@ export default function HomeScreen() {
                 </View>
               )}
             </ScrollView>
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
     </SafeAreaView>
   );
@@ -522,31 +521,40 @@ const styles = StyleSheet.create({
   },
   notificationBadge: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    top: 6,
+    right: 6,
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
     backgroundColor: '#ef4444',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  notificationBadgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '700',
+    textAlign: 'center',
   },
   modalOverlay: {
     flex: 1,
     justifyContent: 'flex-end',
-  },
-  modalBackdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
     backgroundColor: '#fff',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    maxHeight: '80%',
+    flex: 1,
+    marginTop: 60,
     paddingBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 10,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -571,7 +579,10 @@ const styles = StyleSheet.create({
   },
   notificationsList: {
     flex: 1,
+  },
+  notificationsListContent: {
     padding: 16,
+    paddingBottom: 24,
   },
   notificationItem: {
     flexDirection: 'row',
