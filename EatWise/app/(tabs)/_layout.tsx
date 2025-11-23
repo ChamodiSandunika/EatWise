@@ -6,10 +6,11 @@
 
 import { useAuth } from '@clerk/clerk-expo';
 import { Feather } from '@expo/vector-icons';
-import { Redirect, Tabs } from 'expo-router';
+import { Redirect, Tabs, useRouter } from 'expo-router';
 
 export default function TabsLayout() {
   const { isSignedIn, isLoaded } = useAuth();
+  const router = useRouter();
 
   // Redirect to sign-in if not authenticated
   if (isLoaded && !isSignedIn) {
@@ -52,6 +53,12 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <Feather name="plus-circle" size={size} color={color} />
           ),
+        }}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+            router.push('/add-meal');
+          },
         }}
       />
       <Tabs.Screen

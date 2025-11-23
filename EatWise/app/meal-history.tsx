@@ -170,7 +170,7 @@ export default function MealHistoryScreen() {
       </Text>
       <TouchableOpacity
         style={styles.emptyButton}
-        onPress={() => router.push('/meals')}
+        onPress={() => router.push('/add-meal')}
       >
         <Feather name="plus" size={20} color="#fff" />
         <Text style={styles.emptyButtonText}>Add Your First Meal</Text>
