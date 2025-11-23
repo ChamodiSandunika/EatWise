@@ -5,6 +5,7 @@ import {
     Alert,
     Linking,
     ScrollView,
+    StatusBar,
     StyleSheet,
     Text,
     TextInput,
@@ -12,6 +13,7 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface FAQItem {
   question: string;
@@ -84,8 +86,10 @@ const faqs: FAQItem[] = [
 
 export default function HelpScreen() {
   const router = useRouter();
+  const { isDarkMode } = useTheme();
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [feedbackText, setFeedbackText] = useState('');
+  const styles = createStyles(isDarkMode);
 
   const toggleFAQ = (index: number) => {
     setExpandedIndex(expandedIndex === index ? null : index);
@@ -165,9 +169,10 @@ export default function HelpScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Feather name="arrow-left" size={24} color="#1f2937" />
+          <Feather name="arrow-left" size={24} color={isDarkMode ? '#f9fafb' : '#1f2937'} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Help & Support</Text>
         <View style={{ width: 24 }} />
@@ -184,24 +189,28 @@ export default function HelpScreen() {
               iconBg="#10b981"
               title="Contact Support"
               onPress={handleContactSupport}
+              styles={styles}
             />
             <QuickActionCard
               icon="book-open"
               iconBg="#3b82f6"
               title="User Guide"
               onPress={openUserGuide}
+              styles={styles}
             />
             <QuickActionCard
               icon="video"
               iconBg="#8b5cf6"
               title="Tutorials"
               onPress={openVideoTutorials}
+              styles={styles}
             />
             <QuickActionCard
               icon="users"
               iconBg="#f59e0b"
               title="Community"
               onPress={openCommunity}
+              styles={styles}
             />
           </View>
         </View>
@@ -220,6 +229,7 @@ export default function HelpScreen() {
                 faq={faq}
                 isExpanded={expandedIndex === index}
                 onToggle={() => toggleFAQ(index)}
+                styles={styles}
               />
             ))}
           </View>
@@ -259,24 +269,27 @@ export default function HelpScreen() {
               icon="alert-circle"
               iconBg="#ef4444"
               title="Report a Bug"
-              description="Let us know about any issues you encounter"
+              description="Let us know about technical issues"
               onPress={reportBug}
+              styles={styles}
             />
             <View style={styles.divider} />
             <HelpMenuItem
               icon="zap"
               iconBg="#f59e0b"
-              title="Suggest a Feature"
+              title="Request a Feature"
               description="Share your ideas for new features"
               onPress={suggestFeature}
+              styles={styles}
             />
             <View style={styles.divider} />
             <HelpMenuItem
               icon="star"
-              iconBg="#fbbf24"
+              iconBg="#eab308"
               title="Rate the App"
-              description="Enjoying EatWise? Leave us a review!"
-              onPress={() => Alert.alert('Rate App', 'This would open the app store rating page.')}
+              description="Enjoying EatWise? Leave us a review"
+              onPress={() => Alert.alert('Rate Us', 'This would open the app store rating page.')}
+              styles={styles}
             />
           </View>
         </View>
@@ -321,9 +334,10 @@ interface QuickActionCardProps {
   iconBg: string;
   title: string;
   onPress: () => void;
+  styles: any;
 }
 
-function QuickActionCard({ icon, iconBg, title, onPress }: QuickActionCardProps) {
+function QuickActionCard({ icon, iconBg, title, onPress, styles }: QuickActionCardProps) {
   return (
     <TouchableOpacity style={styles.quickActionCard} onPress={onPress}>
       <View style={[styles.quickActionIcon, { backgroundColor: iconBg }]}>
@@ -338,9 +352,10 @@ interface FAQItemComponentProps {
   faq: FAQItem;
   isExpanded: boolean;
   onToggle: () => void;
+  styles: any;
 }
 
-function FAQItemComponent({ faq, isExpanded, onToggle }: FAQItemComponentProps) {
+function FAQItemComponent({ faq, isExpanded, onToggle, styles }: FAQItemComponentProps) {
   return (
     <TouchableOpacity style={styles.faqItem} onPress={onToggle} activeOpacity={0.7}>
       <View style={styles.faqHeader}>
@@ -369,9 +384,10 @@ interface HelpMenuItemProps {
   title: string;
   description: string;
   onPress: () => void;
+  styles: any;
 }
 
-function HelpMenuItem({ icon, iconBg, title, description, onPress }: HelpMenuItemProps) {
+function HelpMenuItem({ icon, iconBg, title, description, onPress, styles }: HelpMenuItemProps) {
   return (
     <TouchableOpacity style={styles.helpMenuItem} onPress={onPress}>
       <View style={styles.helpMenuLeft}>
@@ -388,28 +404,34 @@ function HelpMenuItem({ icon, iconBg, title, description, onPress }: HelpMenuIte
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: isDark ? '#111827' : '#f9fafb',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: isDark ? '#374151' : '#f3f4f6',
   },
   backButton: {
     padding: 4,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: isDark ? '#374151' : '#f3f4f6',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   scrollView: {
     flex: 1,
@@ -424,12 +446,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 4,
   },
   sectionDescription: {
     fontSize: 14,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginBottom: 12,
   },
   quickActions: {
@@ -440,7 +462,7 @@ const styles = StyleSheet.create({
   quickActionCard: {
     flex: 1,
     minWidth: '45%',
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     borderRadius: 16,
     padding: 20,
     alignItems: 'center',
@@ -461,14 +483,14 @@ const styles = StyleSheet.create({
   quickActionText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     textAlign: 'center',
   },
   faqContainer: {
     gap: 8,
   },
   faqItem: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     borderRadius: 12,
     padding: 16,
     shadowColor: '#000',
@@ -486,7 +508,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#f0fdf4',
+    backgroundColor: isDark ? '#1e3a2e' : '#f0fdf4',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -494,22 +516,22 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontWeight: '600',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   faqAnswer: {
     marginTop: 12,
     marginLeft: 44,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#f3f4f6',
+    borderTopColor: isDark ? '#374151' : '#f3f4f6',
   },
   faqAnswerText: {
     fontSize: 14,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     lineHeight: 20,
   },
   feedbackCard: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     borderRadius: 16,
     padding: 16,
     shadowColor: '#000',
@@ -519,13 +541,13 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   feedbackInput: {
-    backgroundColor: '#f9fafb',
+    backgroundColor: isDark ? '#111827' : '#f9fafb',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: isDark ? '#374151' : '#e5e7eb',
     borderRadius: 12,
     padding: 16,
     fontSize: 15,
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     minHeight: 120,
     marginBottom: 16,
   },
@@ -544,7 +566,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     borderRadius: 16,
     padding: 4,
     shadowColor: '#000',
@@ -579,28 +601,28 @@ const styles = StyleSheet.create({
   helpMenuTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 2,
   },
   helpMenuDescription: {
     fontSize: 13,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
   },
   divider: {
     height: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: isDark ? '#374151' : '#f3f4f6',
     marginLeft: 68,
   },
   contactBox: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     marginHorizontal: 16,
     marginTop: 24,
     padding: 20,
     borderRadius: 16,
     gap: 16,
     borderWidth: 2,
-    borderColor: '#d1fae5',
+    borderColor: isDark ? '#2d5a45' : '#d1fae5',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -613,18 +635,18 @@ const styles = StyleSheet.create({
   contactTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 4,
   },
   contactText: {
     fontSize: 14,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginBottom: 8,
   },
   contactEmail: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#10b981',
+    color: isDark ? '#86efac' : '#10b981',
   },
   socialContainer: {
     marginTop: 24,
@@ -634,7 +656,7 @@ const styles = StyleSheet.create({
   socialTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 12,
   },
   socialLinks: {

@@ -11,12 +11,14 @@ interface DailySummaryProps {
   totalCalories: number;
   dailyGoal: number;
   mealCount: number;
+  isDarkMode?: boolean;
 }
 
 export default function DailySummary({
   totalCalories,
   dailyGoal,
   mealCount,
+  isDarkMode = false,
 }: DailySummaryProps) {
   console.log('📊 DailySummary - Received totalCalories:', totalCalories, 'Type:', typeof totalCalories);
   console.log('📊 DailySummary - Received dailyGoal:', dailyGoal);
@@ -25,6 +27,8 @@ export default function DailySummary({
   const progress = Math.min((totalCalories / dailyGoal) * 100, 100);
   const remaining = Math.max(dailyGoal - totalCalories, 0);
   const isOverGoal = totalCalories > dailyGoal;
+
+  const styles = createStyles(isDarkMode);
 
   return (
     <View style={styles.container}>
@@ -79,7 +83,7 @@ export default function DailySummary({
 
       {/* Macros Preview */}
       <View style={styles.macrosHint}>
-        <Feather name="info" size={14} color="#6b7280" />
+        <Feather name="info" size={14} color={isDarkMode ? '#9ca3af' : '#6b7280'} />
         <Text style={styles.macrosHintText}>
           Tap a meal to see detailed nutrition
         </Text>
@@ -88,20 +92,20 @@ export default function DailySummary({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (isDark: boolean) => StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     borderRadius: 16,
     padding: 20,
     marginHorizontal: 16,
     marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
+    shadowOpacity: isDark ? 0.3 : 0.06,
     shadowRadius: 12,
     elevation: 3,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: isDark ? '#374151' : '#f3f4f6',
   },
   header: {
     flexDirection: 'row',
@@ -112,12 +116,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   mealCountBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f0fdf4',
+    backgroundColor: isDark ? '#10b98133' : '#f0fdf4',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 12,
@@ -146,7 +150,7 @@ const styles = StyleSheet.create({
   goalValue: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginBottom: 4,
   },
   overGoalText: {
@@ -160,7 +164,7 @@ const styles = StyleSheet.create({
   divider: {
     width: 1,
     height: 40,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: isDark ? '#374151' : '#e5e7eb',
   },
   progressContainer: {
     flexDirection: 'row',
@@ -181,7 +185,7 @@ const styles = StyleSheet.create({
   progressText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     minWidth: 40,
     textAlign: 'right',
   },
@@ -192,11 +196,11 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#f3f4f6',
+    borderTopColor: isDark ? '#374151' : '#f3f4f6',
     gap: 6,
   },
   macrosHintText: {
     fontSize: 13,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
   },
 });

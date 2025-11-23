@@ -9,12 +9,14 @@ import React, { useState } from 'react';
 import {
     Alert,
     FlatList,
+    StatusBar,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useAppDispatch, useAppSelector } from '../../hooks/useAppDispatch';
 import { addMeal, removeMeal, toggleFavorite, type Meal } from '../../store/mealsSlice';
 
@@ -22,6 +24,7 @@ export default function FavoritesScreen() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const meals = useAppSelector((state) => state.meals.mealList);
+  const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState<'recent' | 'calories'>('recent');
 
   // Filter favorite meals
@@ -179,15 +182,18 @@ export default function FavoritesScreen() {
     </View>
   );
 
+  const styles = createStyles(isDarkMode);
+
   if (favoriteMeals.length === 0) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
+        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Favorites</Text>
         </View>
         <View style={styles.emptyContainer}>
           <View style={styles.emptyIconContainer}>
-            <Feather name="heart" size={64} color="#d1d5db" />
+            <Feather name="heart" size={64} color={isDarkMode ? '#4b5563' : '#d1d5db'} />
           </View>
           <Text style={styles.emptyTitle}>No Favorites Yet</Text>
           <Text style={styles.emptySubtitle}>
@@ -207,6 +213,7 @@ export default function FavoritesScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Favorites</Text>
         <View style={styles.sortContainer}>
@@ -368,23 +375,23 @@ function getMealTypeStyle(type: string) {
   }
 }
 
-const styles = StyleSheet.create({
+const createStyles = (isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: isDark ? '#111827' : '#f9fafb',
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: isDark ? '#374151' : '#f3f4f6',
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 12,
   },
   sortContainer: {
@@ -397,7 +404,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: isDark ? '#374151' : '#f3f4f6',
     gap: 6,
   },
   sortButtonActive: {
@@ -406,14 +413,14 @@ const styles = StyleSheet.create({
   sortText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
   },
   sortTextActive: {
     color: '#fff',
   },
   sectionSubtitle: {
     fontSize: 13,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginBottom: 16,
     paddingHorizontal: 4,
   },
@@ -445,16 +452,16 @@ const styles = StyleSheet.create({
   },
   calorieSectionCount: {
     fontSize: 13,
-    color: '#9ca3af',
+    color: isDark ? '#6b7280' : '#9ca3af',
     fontWeight: '600',
   },
   statsBar: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     paddingVertical: 16,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: isDark ? '#374151' : '#f3f4f6',
   },
   statItem: {
     flex: 1,
@@ -466,27 +473,27 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   statLabel: {
     fontSize: 13,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
   },
   statDivider: {
     width: 1,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: isDark ? '#374151' : '#e5e7eb',
   },
   listContent: {
     padding: 16,
     gap: 12,
   },
   mealCard: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     borderRadius: 16,
     padding: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: isDark ? 0.3 : 0.05,
     shadowRadius: 8,
     elevation: 2,
   },
@@ -514,12 +521,12 @@ const styles = StyleSheet.create({
   mealType: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 4,
   },
   mealDescription: {
     fontSize: 14,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     lineHeight: 18,
   },
   favoriteButton: {
@@ -531,7 +538,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: isDark ? '#374151' : '#f3f4f6',
   },
   nutritionItem: {
     flex: 1,
@@ -541,15 +548,15 @@ const styles = StyleSheet.create({
   nutritionValue: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   nutritionLabel: {
     fontSize: 11,
-    color: '#9ca3af',
+    color: isDark ? '#6b7280' : '#9ca3af',
   },
   nutritionDivider: {
     width: 1,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: isDark ? '#374151' : '#e5e7eb',
   },
   actionRow: {
     flexDirection: 'row',
@@ -575,7 +582,7 @@ const styles = StyleSheet.create({
     height: 48,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fef2f2',
+    backgroundColor: isDark ? '#7f1d1d33' : '#fef2f2',
     borderRadius: 12,
   },
   emptyContainer: {
@@ -590,12 +597,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: 24,
@@ -603,7 +610,7 @@ const styles = StyleSheet.create({
   emptyButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f0fdf4',
+    backgroundColor: isDark ? '#10b98133' : '#f0fdf4',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 12,

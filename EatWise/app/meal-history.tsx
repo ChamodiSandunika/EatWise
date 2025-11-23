@@ -10,6 +10,7 @@ import React, { useEffect, useState } from 'react';
 import {
     FlatList,
     RefreshControl,
+    StatusBar,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -19,6 +20,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 
 import MealCard from '../components/MealCard';
+import { useTheme } from '../contexts/ThemeContext';
 import { selectAllMeals, selectIsLoading } from '../store/mealsSelectors';
 import type { Meal } from '../store/mealsSlice';
 import { loadMealsFromStorage, toggleFavorite } from '../store/mealsSlice';
@@ -33,6 +35,7 @@ interface MealsByDate {
 export default function MealHistoryScreen() {
   const router = useRouter();
   const dispatch = useDispatch();
+  const { isDarkMode } = useTheme();
 
   // Redux selectors
   const allMeals = useSelector(selectAllMeals);
@@ -120,6 +123,7 @@ export default function MealHistoryScreen() {
   };
 
   const mealsByDate = groupMealsByDate();
+  const styles = createStyles(isDarkMode);
 
   // Render section header
   const renderSectionHeader = (section: MealsByDate) => (
@@ -148,6 +152,7 @@ export default function MealHistoryScreen() {
       isFavorite={meal.isFavorite}
       onPress={() => handleMealPress(meal)}
       onToggleFavorite={() => dispatch(toggleFavorite(meal.id))}
+      isDarkMode={isDarkMode}
     />
   );
 
@@ -164,7 +169,7 @@ export default function MealHistoryScreen() {
   // Empty state
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <Feather name="calendar" size={64} color="#d1d5db" />
+      <Feather name="calendar" size={64} color={isDarkMode ? '#4b5563' : '#d1d5db'} />
       <Text style={styles.emptyTitle}>No meal history</Text>
       <Text style={styles.emptySubtitle}>
         Your meal history will appear here once you start logging meals
@@ -181,18 +186,19 @@ export default function MealHistoryScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <Feather name="arrow-left" size={24} color="#1f2937" />
+          <Feather name="arrow-left" size={24} color={isDarkMode ? '#f9fafb' : '#1f2937'} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Meal History</Text>
         <View style={styles.headerRight}>
           <TouchableOpacity style={styles.filterButton}>
-            <Feather name="filter" size={20} color="#6b7280" />
+            <Feather name="filter" size={20} color={isDarkMode ? '#9ca3af' : '#6b7280'} />
           </TouchableOpacity>
         </View>
       </View>
@@ -243,10 +249,10 @@ export default function MealHistoryScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: isDark ? '#111827' : '#f9fafb',
   },
   header: {
     flexDirection: 'row',
@@ -254,22 +260,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: isDark ? '#374151' : '#f3f4f6',
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: isDark ? '#374151' : '#f3f4f6',
     justifyContent: 'center',
     alignItems: 'center',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     flex: 1,
     textAlign: 'center',
   },
@@ -281,20 +287,20 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: isDark ? '#374151' : '#f3f4f6',
     justifyContent: 'center',
     alignItems: 'center',
   },
   statsContainer: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     marginHorizontal: 16,
     marginTop: 16,
     padding: 20,
     borderRadius: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: isDark ? 0.3 : 0.05,
     shadowRadius: 8,
     elevation: 2,
   },
@@ -305,16 +311,16 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   statLabel: {
     fontSize: 12,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginTop: 4,
   },
   statDivider: {
     width: 1,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: isDark ? '#374151' : '#e5e7eb',
     marginHorizontal: 16,
   },
   listContent: {
@@ -330,24 +336,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: isDark ? '#374151' : '#f3f4f6',
   },
   dateText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   mealCountText: {
     fontSize: 13,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginTop: 2,
   },
   caloriesBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f0fdf4',
+    backgroundColor: isDark ? '#10b98133' : '#f0fdf4',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
@@ -368,12 +374,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginTop: 20,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: isDark ? '#6b7280' : '#9ca3af',
     marginTop: 8,
     textAlign: 'center',
     lineHeight: 20,

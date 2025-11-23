@@ -10,10 +10,25 @@ import type { AdviceMessage } from '../utils/adviceEngine';
 
 interface AdviceCardProps {
   advice: AdviceMessage;
+  isDarkMode?: boolean;
 }
 
-export default function AdviceCard({ advice }: AdviceCardProps) {
+export default function AdviceCard({ advice, isDarkMode = false }: AdviceCardProps) {
   const getBackgroundColor = () => {
+    if (isDarkMode) {
+      switch (advice.type) {
+        case 'warning':
+          return '#3a1f1f';
+        case 'tip':
+          return '#1e2a3a';
+        case 'positive':
+          return '#1e3a2e';
+        case 'info':
+          return '#3a351e';
+        default:
+          return '#1f2937';
+      }
+    }
     switch (advice.type) {
       case 'warning':
         return '#fef2f2';
@@ -29,6 +44,20 @@ export default function AdviceCard({ advice }: AdviceCardProps) {
   };
 
   const getBorderColor = () => {
+    if (isDarkMode) {
+      switch (advice.type) {
+        case 'warning':
+          return '#7f1d1d';
+        case 'tip':
+          return '#1e3a8a';
+        case 'positive':
+          return '#2d5a45';
+        case 'info':
+          return '#713f12';
+        default:
+          return '#374151';
+      }
+    }
     switch (advice.type) {
       case 'warning':
         return '#fecaca';
@@ -91,7 +120,9 @@ export default function AdviceCard({ advice }: AdviceCardProps) {
           {getTypeLabel()}
         </Text>
       </View>
-      <Text style={styles.message}>{advice.message}</Text>
+      <Text style={[styles.message, { color: isDarkMode ? '#d1d5db' : '#374151' }]}>
+        {advice.message}
+      </Text>
     </View>
   );
 }
@@ -130,7 +161,6 @@ const styles = StyleSheet.create({
   message: {
     fontSize: 15,
     lineHeight: 22,
-    color: '#374151',
     fontWeight: '500',
   },
 });

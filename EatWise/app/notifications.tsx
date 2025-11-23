@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import {
     Alert,
     ScrollView,
+    StatusBar,
     StyleSheet,
     Switch,
     Text,
@@ -12,6 +13,8 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { useTheme } from '../contexts/ThemeContext';
 
 const NOTIFICATION_SETTINGS_KEY = '@eatwise_notification_settings';
 
@@ -49,6 +52,7 @@ const defaultSettings: NotificationSettings = {
 
 export default function NotificationsScreen() {
   const router = useRouter();
+  const { isDarkMode } = useTheme();
   const [settings, setSettings] = useState<NotificationSettings>(defaultSettings);
   const [loading, setLoading] = useState(true);
 
@@ -107,12 +111,15 @@ export default function NotificationsScreen() {
     );
   };
 
+  const styles = createStyles(isDarkMode);
+
   if (loading) {
     return (
       <View style={styles.container}>
+        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Feather name="arrow-left" size={24} color="#1f2937" />
+            <Feather name="arrow-left" size={24} color={isDarkMode ? '#f9fafb' : '#1f2937'} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Notifications</Text>
           <View style={{ width: 24 }} />
@@ -123,9 +130,10 @@ export default function NotificationsScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Feather name="arrow-left" size={24} color="#1f2937" />
+          <Feather name="arrow-left" size={24} color={isDarkMode ? '#f9fafb' : '#1f2937'} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Notifications</Text>
         <View style={{ width: 24 }} />
@@ -147,6 +155,7 @@ export default function NotificationsScreen() {
               description="Get reminded to log your meals"
               value={settings.mealReminders}
               onToggle={() => toggleSetting('mealReminders')}
+              styles={styles}
             />
             <View style={styles.divider} />
             <SettingItem
@@ -156,6 +165,7 @@ export default function NotificationsScreen() {
               description="Stay on track with your daily calorie goals"
               value={settings.dailyGoalReminders}
               onToggle={() => toggleSetting('dailyGoalReminders')}
+              styles={styles}
             />
             <View style={styles.divider} />
             <SettingItem
@@ -165,6 +175,7 @@ export default function NotificationsScreen() {
               description="Receive weekly progress summaries"
               value={settings.weeklyReports}
               onToggle={() => toggleSetting('weeklyReports')}
+              styles={styles}
             />
             <View style={styles.divider} />
             <SettingItem
@@ -174,6 +185,7 @@ export default function NotificationsScreen() {
               description="Learn with daily nutrition insights"
               value={settings.nutritionTips}
               onToggle={() => toggleSetting('nutritionTips')}
+              styles={styles}
             />
           </View>
         </View>
@@ -194,6 +206,7 @@ export default function NotificationsScreen() {
               enabled={settings.breakfastReminder}
               onToggle={() => toggleSetting('breakfastReminder')}
               onTimePress={() => handleTimeChange('breakfastTime')}
+              styles={styles}
             />
             <View style={styles.divider} />
             <MealTimeItem
@@ -204,6 +217,7 @@ export default function NotificationsScreen() {
               enabled={settings.lunchReminder}
               onToggle={() => toggleSetting('lunchReminder')}
               onTimePress={() => handleTimeChange('lunchTime')}
+              styles={styles}
             />
             <View style={styles.divider} />
             <MealTimeItem
@@ -214,6 +228,7 @@ export default function NotificationsScreen() {
               enabled={settings.dinnerReminder}
               onToggle={() => toggleSetting('dinnerReminder')}
               onTimePress={() => handleTimeChange('dinnerTime')}
+              styles={styles}
             />
           </View>
         </View>
@@ -230,6 +245,7 @@ export default function NotificationsScreen() {
               description="Stay hydrated throughout the day"
               value={settings.waterReminder}
               onToggle={() => toggleSetting('waterReminder')}
+              styles={styles}
             />
             <View style={styles.divider} />
             <SettingItem
@@ -239,6 +255,7 @@ export default function NotificationsScreen() {
               description="Get notified when approaching your daily limit"
               value={settings.goalAlerts}
               onToggle={() => toggleSetting('goalAlerts')}
+              styles={styles}
             />
             <View style={styles.divider} />
             <SettingItem
@@ -248,6 +265,7 @@ export default function NotificationsScreen() {
               description="Receive daily motivation and encouragement"
               value={settings.motivationalMessages}
               onToggle={() => toggleSetting('motivationalMessages')}
+              styles={styles}
             />
           </View>
         </View>
@@ -278,9 +296,10 @@ interface SettingItemProps {
   description: string;
   value: boolean;
   onToggle: () => void;
+  styles: any;
 }
 
-function SettingItem({ icon, iconBg, title, description, value, onToggle }: SettingItemProps) {
+function SettingItem({ icon, iconBg, title, description, value, onToggle, styles }: SettingItemProps) {
   return (
     <View style={styles.settingItem}>
       <View style={styles.settingLeft}>
@@ -310,6 +329,7 @@ interface MealTimeItemProps {
   enabled: boolean;
   onToggle: () => void;
   onTimePress: () => void;
+  styles: any;
 }
 
 function MealTimeItem({
@@ -320,6 +340,7 @@ function MealTimeItem({
   enabled,
   onToggle,
   onTimePress,
+  styles,
 }: MealTimeItemProps) {
   return (
     <View style={styles.mealTimeItem}>
@@ -344,28 +365,34 @@ function MealTimeItem({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: isDark ? '#111827' : '#f9fafb',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: isDark ? '#374151' : '#f3f4f6',
   },
   backButton: {
     padding: 4,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: isDark ? '#374151' : '#f3f4f6',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
   },
   scrollView: {
     flex: 1,
@@ -380,21 +407,21 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 4,
   },
   sectionDescription: {
     fontSize: 14,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     marginBottom: 12,
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     borderRadius: 16,
     padding: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: isDark ? 0.3 : 0.05,
     shadowRadius: 8,
     elevation: 2,
   },
@@ -424,16 +451,16 @@ const styles = StyleSheet.create({
   settingTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1f2937',
+    color: isDark ? '#f9fafb' : '#1f2937',
     marginBottom: 2,
   },
   settingDescription: {
     fontSize: 13,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
   },
   divider: {
     height: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: isDark ? '#374151' : '#f3f4f6',
     marginLeft: 68,
   },
   mealTimeItem: {
@@ -458,20 +485,20 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   timeTextDisabled: {
-    color: '#9ca3af',
+    color: isDark ? '#6b7280' : '#9ca3af',
   },
   resetButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: isDark ? '#1f2937' : '#fff',
     marginHorizontal: 16,
     marginTop: 24,
     padding: 16,
     borderRadius: 12,
     gap: 8,
     borderWidth: 1,
-    borderColor: '#fee2e2',
+    borderColor: isDark ? '#7f1d1d' : '#fee2e2',
   },
   resetText: {
     fontSize: 16,
@@ -480,7 +507,7 @@ const styles = StyleSheet.create({
   },
   infoBox: {
     flexDirection: 'row',
-    backgroundColor: '#f3f4f6',
+    backgroundColor: isDark ? '#374151' : '#f3f4f6',
     marginHorizontal: 16,
     marginTop: 16,
     padding: 16,
@@ -490,7 +517,7 @@ const styles = StyleSheet.create({
   infoText: {
     flex: 1,
     fontSize: 13,
-    color: '#6b7280',
+    color: isDark ? '#9ca3af' : '#6b7280',
     lineHeight: 18,
   },
 });
